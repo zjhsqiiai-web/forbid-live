@@ -487,6 +487,8 @@ async def on_message(message):
                 await message.channel.send("⚠️ No active FORB1D🔥 GC Name Flasher running here.")
 
 # 4. Master Engine Initialization
+# 4. Master Engine Initialization
+# 4. Master Engine Initialization
 async def main():
     raw_tokens = os.environ.get('BOT_TOKENS')
     if not raw_tokens:
@@ -498,14 +500,22 @@ async def main():
 
     print(f"⚡ Initializing multi-token array with {len(token_list)} targets...")
 
+    # Create a shielded login function so dead tokens don't crash the good ones
+    async def safe_start(client, token):
+        try:
+            await client.start(token)
+        except Exception as e:
+            print(f"💀 DEAD TOKEN SKIPPED [{token[:10]}...]: {e}")
+
     # Build client instances for every token
     for token in token_list:
         client = ForbidToken()
-        clients.append(client.start(token))
+        # Use our shielded start function instead of the raw one
+        clients.append(safe_start(client, token))
         # Brief sleep during setup loop to keep connections clean
         await asyncio.sleep(0.5)
 
-    # Fire all 8 connections concurrently inside a single Python engine
+    # Fire all connections concurrently
     print("🚀 Firing connections concurrently...")
     await asyncio.gather(*clients)
 
