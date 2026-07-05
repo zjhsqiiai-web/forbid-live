@@ -45,6 +45,7 @@ class ForbidToken(discord.Client):
         print(f"⚡ [{self.user.name}] executing '{command}' for {message.author.name}", flush=True)
 
         # 4. Your Commands!
+        # 4. Your Commands!
         if command == "ping":
             if not isinstance(message.channel, discord.DMChannel):
                 try: 
@@ -52,12 +53,12 @@ class ForbidToken(discord.Client):
                 except: 
                     pass
 
-            global active_monitors 
+            # No global keyword needed!
             msg = await message.channel.send("`[!] FORBID // INITIALIZING...`")
             active_monitors[message.channel.id] = msg
 
         elif command == "unping":
-            global active_monitors
+            # No global keyword needed here either!
             if message.channel.id in active_monitors:
                 msg = active_monitors.pop(message.channel.id)
                 await msg.edit(content="`[!] FORBID // SHUTTING DOWN...`")
