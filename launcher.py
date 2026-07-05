@@ -46,7 +46,7 @@ class ForbidToken(discord.Client):
 
         # 4. Your Commands!
         if command == "ping":
-        if not isinstance(message.channel, discord.DMChannel):
+            if not isinstance(message.channel, discord.DMChannel):
             try: await message.delete()
             except: pass
 
