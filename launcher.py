@@ -19,33 +19,29 @@ spam_tasks = {}
 # 3. Define the Custom Client Blueprint
 class ForbidToken(discord.Client):
     async def on_ready(self):
-        print(f"🔥 [{self.user.name}] Connected & Ready to operate.")
+        # If this doesn't print, Discord is blocking the websocket connection
+        print(f"🔥 [{self.user.name}] WEBSOCKET FULLY CONNECTED! I am alive!", flush=True)
 
-async def on_message(self, message):
-        # 1. Print every single message it sees to the Render logs
-        print(f"👀 [{self.user.name}] saw message from {message.author.id}: {message.content}")
+    async def on_message(self, message):
+        # Force print EVERY SINGLE MESSAGE it sees, anywhere.
+        print(f"👀 [{self.user.name}] saw message from {message.author.name}: {message.content}", flush=True)
 
-        # 2. Check for the prefix first
         if not message.content.startswith(PREFIX):
             return
 
-        print(f"✅ [{self.user.name}] saw a command prefix!")
-
-        # 3. TEMPORARILY DISABLED SECURITY LOCKS FOR TESTING
-        # (We will turn these back on once we prove it works)
-        # if message.author.id == self.user.id: return
-        # if message.author.id != MAIN_OWNER ... return
+        print(f"✅ [{self.user.name}] saw a command prefix!", flush=True)
 
         parts = message.content[len(PREFIX):].split()
         if not parts:
             return
         command = parts[0].lower()
 
-        # 4. Commands
         if command == "ping":
+            print("🏓 Executing PING command...", flush=True)
             await message.channel.send(f"🏓 FORB1D🔥 [{self.user.name}] is ONLINE!")
 
         elif command == "stopgcnc":
+            print("🛑 Executing STOPGCNC command...", flush=True)
             await message.channel.send(f"🛑 FORB1D🔥 [{self.user.name}] received stop command.")
 # 4. Master Engine Initialization
 async def main():
