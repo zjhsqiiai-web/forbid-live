@@ -82,14 +82,18 @@ class ForbidToken(discord.Client):
                     del self.active_monitors[message.channel.id]
 
         elif command == "unping":
+            # 1. Delete your "!unping" command message
+            if not isinstance(message.channel, discord.DMChannel):
+                try: await message.delete()
+                except: pass
+
+            # 2. Your exact raw shutdown logic
             if hasattr(self, 'active_monitors') and message.channel.id in self.active_monitors:
                 msg = self.active_monitors.pop(message.channel.id)
-                try:
-                    await msg.edit(content="`[!] FORB1D🔥 // SHUTTING DOWN...`")
-                    await asyncio.sleep(1.5)
-                    await msg.delete()
-                except:
-                    pass
+                
+                await msg.edit(content="`[!] FORBID // SHUTTING DOWN...`")
+                await asyncio.sleep(1.5)
+                await msg.delete()
            
 # 4. Master Engine Initialization
 async def main():
