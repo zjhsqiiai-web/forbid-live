@@ -1,14 +1,18 @@
-import discord, json, asyncio, random, sys
+import discord
+import asyncio
+import random
+import sys
 import re
 
-# Load config
-with open('config.json', 'r') as f: config = json.load(f)
-
-# Use the token passed from the launcher
+# 1. Use the token passed from the launcher
 TOKEN = sys.argv[1] 
-PREFIX = config['prefix']
-AUTHORIZED_USERS = config.get('authorized_users', [])
+
+# 2. Hardcode your configuration directly (No config.json required)
+PREFIX = "!"
 MAIN_OWNER = 1457960499798081549 
+
+# Put any friends' IDs inside this list separated by commas if needed
+AUTHORIZED_USERS = [] 
 
 client = discord.Client()
 active_monitors = {}
