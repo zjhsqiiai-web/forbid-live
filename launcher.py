@@ -21,7 +21,7 @@ class ForbidToken(discord.Client):
     async def on_ready(self):
         print(f"🔥 [{self.user.name}] Connected & Ready to operate.")
 
-    async def on_message(message):
+        async def on_message(message):
     # 1. Bot ignores its own messages to prevent infinite loops
     if message.author == client.user:
         return
