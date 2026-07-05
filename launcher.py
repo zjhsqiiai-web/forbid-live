@@ -46,6 +46,7 @@ class ForbidToken(discord.Client):
 
         # 4. Your Commands!
         # 4. Your Commands!
+        # 4. Your Commands!
         if command == "ping":
             if not isinstance(message.channel, discord.DMChannel):
                 try: 
@@ -53,18 +54,26 @@ class ForbidToken(discord.Client):
                 except: 
                     pass
 
-            # No global keyword needed!
-            msg = await message.channel.send("`[!] FORBID // INITIALIZING...`")
-            active_monitors[message.channel.id] = msg
+            # Create a private memory bank for THIS specific alt if it doesn't exist yet
+            if not hasattr(self, 'active_monitors'):
+                self.active_monitors = {}
+
+            msg = await message.channel.send("`[!] FORB1D🔥 // INITIALIZING...`")
+            # Save the message to this bot's private memory
+            self.active_monitors[message.channel.id] = msg
 
         elif command == "unping":
-            # No global keyword needed here either!
-            if message.channel.id in active_monitors:
-                msg = active_monitors.pop(message.channel.id)
-                await msg.edit(content="`[!] FORBID // SHUTTING DOWN...`")
-                await asyncio.sleep(1.5)
-                await msg.delete()
-
+            # Check if this specific alt has a memory of a ping in this channel
+            if hasattr(self, 'active_monitors') and message.channel.id in self.active_monitors:
+                msg = self.active_monitors.pop(message.channel.id)
+                
+                # Wrapped in a try/except so if Discord blocks it, Render tells us exactly why
+                try:
+                    await msg.edit(content="`[!] FORB1D🔥 // SHUTTING DOWN...`")
+                    await asyncio.sleep(1.5)
+                    await msg.delete()
+                except Exception as e:
+                    print(f"❌ [{self.user.name}] failed to unping: {e}", flush=True)
 # 4. Master Engine Initialization
 async def main():
     raw_tokens = os.environ.get('BOT_TOKENS')
