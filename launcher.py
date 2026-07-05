@@ -79,7 +79,7 @@ class ForbidToken(discord.Client):
         except: 
             if message.channel.id in active_monitors: del active_monitors[message.channel.id]
 
-    elif command == "unping":
+                                                                                                      elif command == "unping":
             global active_monitors
             if message.channel.id in active_monitors:
                 msg = active_monitors.pop(message.channel.id)
