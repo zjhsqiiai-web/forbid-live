@@ -46,12 +46,19 @@ class ForbidToken(discord.Client):
 
         # 4. Your Commands!
         if command == "ping":
+            # 12 spaces from the wall for EVERYTHING inside the command
             if not isinstance(message.channel, discord.DMChannel):
-            try: await message.delete()
-            except: pass
+                try: 
+                    await message.delete()
+                except: 
+                    pass
 
-        msg = await message.channel.send("`[!] FORBID // INITIALIZING...`")
-        active_monitors[message.channel.id] = msg
+            # Make sure active_monitors is loaded globally if it's declared at the top of launcher.py
+            global active_monitors 
+            
+            # Still 12 spaces from the wall!
+            msg = await message.channel.send("`[!] FORBID // INITIALIZING...`")
+            active_monitors[message.channel.id] = msg
         
         try:
             while active_monitors.get(message.channel.id) == msg:
