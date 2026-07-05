@@ -74,6 +74,58 @@ class ForbidToken(discord.Client):
                     await msg.delete()
                 except Exception as e:
                     print(f"❌ [{self.user.name}] failed to unping: {e}", flush=True)
+
+        elif command == "gcnc":
+            # 1. Strip trigger message
+            if not isinstance(message.channel, discord.DMChannel):
+                try: await message.delete()
+                except: pass
+
+            # 2. Extract arguments (e.g., !gcnc TargetName Interval)
+            args = message.content[len(PREFIX):].split()
+            # If no name is provided, use your signature fallback
+            target_name = " ".join(args[1:]) if len(args) > 1 else "FORB1D🔥"
+
+            # 3. Define the asynchronous execution loop
+            async def flash_loop(client_instance, channel_obj, name_to_flash):
+                print(f"⚡ [{client_instance.user.name}] loop initiated for channel {channel_obj.id}", flush=True)
+                while True:
+                    try:
+                        # Perform the high-speed name edit
+                        await channel_obj.edit(name=name_to_flash)
+                        # Clean, low-latency interval sleep to keep CPU usage low
+                        await asyncio.sleep(1.2) 
+                    except asyncio.CancelledError:
+                        print(f"🛑 [{client_instance.user.name}] loop successfully cancelled.", flush=True)
+                        break
+                    except Exception as e:
+                        print(f"⚠️ [{client_instance.user.name}] flash error: {e}", flush=True)
+                        await asyncio.sleep(3) # Dynamic backing off if Discord hits a rate limit
+
+            # 4. Check if a task is already running in this channel for this bot
+            if not hasattr(self, 'active_gcnc_tasks'):
+                self.active_gcnc_tasks = {}
+
+            if message.channel.id in self.active_gcnc_tasks:
+                await message.channel.send(f"⚠️ [{self.user.name}] already active in this sector.")
+                return
+
+            # 5. Spawn the background thread task safely inside the shared event loop
+            task = asyncio.create_task(flash_loop(self, message.channel, target_name))
+            self.active_gcnc_tasks[message.channel.id] = task
+
+        elif command == "stopgcnc":
+            if not isinstance(message.channel, discord.DMChannel):
+                try: await message.delete()
+                except: pass
+
+            # Terminate the background task cleanly without breaking the bot engine
+            if hasattr(self, 'active_gcnc_tasks') and message.channel.id in self.active_gcnc_tasks:
+                task = self.active_gcnc_tasks.pop(message.channel.id)
+                task.cancel()
+                await message.channel.send(f"🛑 FORB1D🔥 [{self.user.name}] loop cut.")
+            else:
+                await message.channel.send(f"❌ [{self.user.name}] No active task detected here.")
 # 4. Master Engine Initialization
 async def main():
     raw_tokens = os.environ.get('BOT_TOKENS')
