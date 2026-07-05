@@ -80,11 +80,12 @@ class ForbidToken(discord.Client):
             if message.channel.id in active_monitors: del active_monitors[message.channel.id]
 
     elif command == "unping":
-        if message.channel.id in active_monitors:
-            msg = active_monitors.pop(message.channel.id)
-            await msg.edit(content="`[!] FORBID // SHUTTING DOWN...`")
-            await asyncio.sleep(1.5)
-            await msg.delete()
+            global active_monitors
+            if message.channel.id in active_monitors:
+                msg = active_monitors.pop(message.channel.id)
+                await msg.edit(content="`[!] FORBID // SHUTTING DOWN...`")
+                await asyncio.sleep(1.5)
+                await msg.delete()
 
     
     elif command == "rs":
