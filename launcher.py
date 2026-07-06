@@ -211,63 +211,64 @@ class ForbidToken(discord.Client):
 
 
         elif command == "cs":
-        # Usage: !cs <text> <delay>
+            # Usage: !cs <text> <delay>
             if len(parts) < 3:
-            return await message.channel.send("❌ Usage: `!cs <text> <delay>`")
-        
-        try:
-            user_text = " ".join(parts[1:-1])
-            delay = float(parts[-1])
+                return await message.channel.send("❌ Usage: `!cs <text> <delay>`")
             
-            hearts = ["❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "🤎"]
+            try:
+                user_text = " ".join(parts[1:-1])
+                delay = float(parts[-1])
+                
+                hearts = ["❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "🤎"]
 
-            async def custom_loop():
-                # ADVANCED MATH: Use the account's unique Discord ID to calculate a perfect stagger!
-                # This guarantees no race conditions and perfectly spaces all tokens.
-                my_math_id = self.user.id % 8 
-                perfect_stagger = (delay / 8.0) * my_math_id
-                
-                # Start at a unique color based on the account ID 
-                color_index = self.user.id % len(hearts)
-                
-                # Wait for this token's precise mathematical turn
-                await asyncio.sleep(perfect_stagger)
-                
-                while True:
-                    try:
-                        # Grab current heart, then cycle to the next one infinitely
-                        heart = hearts[color_index]
-                        color_index = (color_index + 1) % len(hearts)
-                        
-                        base_text = f"# {user_text} - ({heart})"
-                        spaced_text = base_text.replace(" ", " \u200B")
-                        multiplier = 1950 // (len(spaced_text) + 2)
-                        final_content = "\n\n".join([spaced_text] * max(1, multiplier))
-                        
-                        await message.channel.send(final_content)
-                        
-                        # Wait the full delay (safe from IP ban), while maintaining the Gatling gun weave
-                        await asyncio.sleep(delay)
+                async def custom_loop():
+                    # ADVANCED MATH: Use the account's unique Discord ID to calculate a perfect stagger!
+                    # This guarantees no race conditions and perfectly spaces all tokens.
+                    my_math_id = self.user.id % 8 
+                    perfect_stagger = (delay / 8.0) * my_math_id
                     
-                    except discord.HTTPException as e:
-                        if e.status == 429:
-                            wait = float(e.response.headers.get("Retry-After", 1.0))
-                            await asyncio.sleep(wait)
-                        else:
-                            await asyncio.sleep(0.3)
+                    # Start at a unique color based on the account ID 
+                    color_index = self.user.id % len(hearts)
+                    
+                    # Wait for this token's precise mathematical turn
+                    await asyncio.sleep(perfect_stagger)
+                    
+                    while True:
+                        try:
+                            # Grab current heart, then cycle to the next one infinitely
+                            heart = hearts[color_index]
+                            color_index = (color_index + 1) % len(hearts)
+                            
+                            base_text = f"# {user_text} - ({heart})"
+                            spaced_text = base_text.replace(" ", " \u200B")
+                            multiplier = 1950 // (len(spaced_text) + 2)
+                            final_content = "\n\n".join([spaced_text] * max(1, multiplier))
+                            
+                            await message.channel.send(final_content)
+                            
+                            # Wait the full delay (safe from IP ban), while maintaining the Gatling gun weave
+                            await asyncio.sleep(delay)
+                        
+                        except discord.HTTPException as e:
+                            if e.status == 429:
+                                wait = float(e.response.headers.get("Retry-After", 1.0))
+                                await asyncio.sleep(wait)
+                            else:
+                                await asyncio.sleep(0.3)
+                
+                task = asyncio.create_task(custom_loop())
+                
+                global spam_tasks
+                if message.channel.id not in spam_tasks:
+                    spam_tasks[message.channel.id] = []
+                spam_tasks[message.channel.id].append(task)
+                
+                # Prevent 8 identical confirmations by only letting one specific ID send it
+                if self.user.id % 8 == 0 or self.user.id % 8 == 1: 
+                    await message.channel.send(f"✅Custom-Spam started: '{user_text}'")
             
-            task = asyncio.create_task(custom_loop())
-            global spam_tasks
-            if message.channel.id not in spam_tasks:
-                spam_tasks[message.channel.id] = []
-            spam_tasks[message.channel.id].append(task)
-            
-            # Prevent 8 identical confirmations by only letting one specific ID send it
-            if self.user.id % 8 == 0 or self.user.id % 8 == 1: 
-                await message.channel.send(f"✅Custom-Spam started: '{user_text}'")
-            
-        except Exception as e:
-            await message.channel.send(f"❌ Error: {e}")
+            except Exception as e:
+                await message.channel.send(f"❌ Error: {e}")
        
            
 # 4. Master Engine Initialization
