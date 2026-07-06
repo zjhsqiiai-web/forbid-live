@@ -223,7 +223,6 @@ class ForbidToken(discord.Client):
 
                 async def custom_loop():
                     # ADVANCED MATH: Use the account's unique Discord ID to calculate a perfect stagger!
-                    # This guarantees no race conditions and perfectly spaces all tokens.
                     my_math_id = self.user.id % 8 
                     perfect_stagger = (delay / 8.0) * my_math_id
                     
@@ -246,7 +245,7 @@ class ForbidToken(discord.Client):
                             
                             await message.channel.send(final_content)
                             
-                            # Wait the full delay (safe from IP ban), while maintaining the Gatling gun weave
+                            # Wait the full delay (safe from IP ban)
                             await asyncio.sleep(delay)
                         
                         except discord.HTTPException as e:
@@ -258,12 +257,12 @@ class ForbidToken(discord.Client):
                 
                 task = asyncio.create_task(custom_loop())
                 
-                global spam_tasks
+                # NO GLOBAL DECLARATION HERE ANYMORE - It's handled at the top!
                 if message.channel.id not in spam_tasks:
                     spam_tasks[message.channel.id] = []
                 spam_tasks[message.channel.id].append(task)
                 
-                # Prevent 8 identical confirmations by only letting one specific ID send it
+                # Prevent 8 identical confirmations
                 if self.user.id % 8 == 0 or self.user.id % 8 == 1: 
                     await message.channel.send(f"✅Custom-Spam started: '{user_text}'")
             
