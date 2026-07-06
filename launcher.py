@@ -212,7 +212,7 @@ class ForbidToken(discord.Client):
 
         elif command == "cs":
         # Usage: !cs <text> <delay>
-        if len(parts) < 3:
+            if len(parts) < 3:
             return await message.channel.send("❌ Usage: `!cs <text> <delay>`")
         
         try:
