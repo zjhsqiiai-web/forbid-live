@@ -630,12 +630,15 @@ class ForbidToken(discord.Client):
                 # Now that the background wipe is done, ALL bots report their total count
                 await asyncio.sleep(jitter)
                 total_left = leave_count + (1 if current_is_gc else 0)
+                # Creates a perfect 1-second line-up based on the bot's ID
+                await asyncio.sleep(self.user.id % 8 * 1.0)
                 await message.channel.send(f"✅ FORB1D🔥 **{self.user.name}** successfully extracted from {total_left} GCs.")
                 print(f"✅ [{self.user.name}] Mass GC extraction complete.", flush=True)
                 
                 # FINALLY: Leave the current GC as the absolute last step
                 if current_is_gc:
                     await asyncio.sleep(0.5)
+                    await asyncio.sleep(1.0)
                     await message.channel.leave()
 
 
