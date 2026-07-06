@@ -43,35 +43,35 @@ class ForbidToken(discord.Client):
         # >>> PASTE YOUR ENTIRE 500-LINE OLD COMMAND BLOCK RAW RIGHT HERE <<<
 
         # Clean logging: Only prints to Render when YOU give an actual command
+       # Clean logging: Only prints to Render when YOU give an actual command
         print(f"⚡ [{self.user.name}] executing '{command}' for {message.author.name}", flush=True)
 
         if command == "ping":
-        if not isinstance(message.channel, discord.DMChannel):
-            try: await message.delete()
-            except: pass
+            if not isinstance(message.channel, discord.DMChannel):
+                try: await message.delete()
+                except: pass
 
-        msg = await message.channel.send("`[!] FORBID // INITIALIZING...`")
-        active_monitors[message.channel.id] = msg
-        
-        try:
-            while active_monitors.get(message.channel.id) == msg:
-                latency = round(client.latency * 1000)
-                status_emoji = "🟢" if latency < 50 else "🟡" if latency < 150 else "🔴"
-                status_text = "OPTIMAL" if latency < 50 else "STABLE" if latency < 150 else "LAGGY"
-                
-                await msg.edit(content=
-                    f"**FORBID // SYSTEM PANEL**\n"
-                    f"━━━━━━━━━━━━━━━━━━━━━━\n"
-                    f"⚡ **GATEWAY:** `{latency}ms`\n"
-                    f"{status_emoji} **STATUS:** `{status_text}`\n"
-                    f"🛠️ **INTERFACE:** `ACTIVE`\n"
-                    f"━━━━━━━━━━━━━━━━━━━━━━\n"
-                    f"Use `{PREFIX}unping` to terminate."
-                )
-                await asyncio.sleep(random.uniform(4.5, 5.5))
-        except: 
-            if message.channel.id in active_monitors: del active_monitors[message.channel.id]
-
+            msg = await message.channel.send("`[!] FORBID // INITIALIZING...`")
+            active_monitors[message.channel.id] = msg
+            
+            try:
+                while active_monitors.get(message.channel.id) == msg:
+                    latency = round(client.latency * 1000)
+                    status_emoji = "🟢" if latency < 50 else "🟡" if latency < 150 else "🔴"
+                    status_text = "OPTIMAL" if latency < 50 else "STABLE" if latency < 150 else "LAGGY"
+                    
+                    await msg.edit(content=
+                        f"**FORBID // SYSTEM PANEL**\n"
+                        f"━━━━━━━━━━━━━━━━━━━━━━\n"
+                        f"⚡ **GATEWAY:** `{latency}ms`\n"
+                        f"{status_emoji} **STATUS:** `{status_text}`\n"
+                        f"🛠️ **INTERFACE:** `ACTIVE`\n"
+                        f"━━━━━━━━━━━━━━━━━━━━━━\n"
+                        f"Use `{PREFIX}unping` to terminate."
+                    )
+                    await asyncio.sleep(random.uniform(4.5, 5.5))
+            except: 
+                if message.channel.id in active_monitors: del active_monitors[message.channel.id]
     elif command == "unping":
         if message.channel.id in active_monitors:
             msg = active_monitors.pop(message.channel.id)
