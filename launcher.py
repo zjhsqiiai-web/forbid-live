@@ -448,6 +448,98 @@ class ForbidToken(discord.Client):
                 else:
                     await message.channel.send(f"⚠️ **{self.user.name}** has no active targets to clear.")
 
+        elif command == "gcnc":
+            # Usage: !gcnc <name> <delay>
+            if len(parts) < 3:
+                if self.user.id % 8 == 0:
+                    return await message.channel.send("❌ Usage: `!gcnc <name> <delay>` (e.g. !gcnc testing 1)")
+                return
+
+            # 1. Security Check: Only run this if we are actually in a Group Chat
+            if not isinstance(message.channel, discord.GroupChannel):
+                if self.user.id % 8 == 0:
+                    return await message.channel.send("❌ FORB1D🔥 Error: This command only works in Group Chats.")
+                return
+
+            try:
+                # Everything in the middle is the name, the very last part is the delay
+                base_name = " ".join(parts[1:-1])
+                delay = float(parts[-1])
+                emojis = ["💀", "👿", "🔥", "👑", "⚡", "🔱", "💎", "☠️"]
+                
+                # YOUR GC NAME TEMPLATES: Cycles through these infinitely!
+                templates = [
+                    "{chosen_emoji} {user_text} {chosen_emoji}",
+                    "{chosen_emoji} FORB1D🔥 OPS {chosen_emoji}",
+                    "👑 {user_text} ON TOP 👑"
+                ]
+                
+                async def gcnc_loop():
+                    # ADVANCED MATH: Use your exact delay to stagger the start
+                    my_math_id = self.user.id % 8 
+                    stagger = my_math_id * delay
+                    await asyncio.sleep(stagger)
+                    
+                    emoji_index = self.user.id % len(emojis)
+                    template_index = self.user.id % len(templates)
+                    
+                    # To keep the exact 1-second pace, each bot waits 8x the delay between its own turns
+                    cycle_wait = delay * 8.0
+                    
+                    while True:
+                        try:
+                            # Grab current emoji and cycle
+                            chosen_emoji = emojis[emoji_index]
+                            emoji_index = (emoji_index + 1) % len(emojis)
+                            
+                            # Grab current template and cycle
+                            raw_template = templates[template_index]
+                            template_index = (template_index + 1) % len(templates)
+                            
+                            # Swap the placeholders with the actual text and emoji
+                            new_gc_name = raw_template.replace("{user_text}", base_name).replace("{chosen_emoji}", chosen_emoji)
+                            
+                            # Discord max limit safety check (GC names cap at 100 characters)
+                            if len(new_gc_name) > 100:
+                                new_gc_name = new_gc_name[:100]
+                            
+                            await message.channel.edit(name=new_gc_name)
+                            print(f"🔄 [{self.user.name}] Flashed GC name: {new_gc_name}", flush=True)
+                            
+                            # Wait for the other 7 tokens to take their turns
+                            await asyncio.sleep(cycle_wait) 
+                            
+                        except discord.HTTPException as e:
+                            if e.status == 429:
+                                # If Discord blocks it, wait the exact penalty time and immediately resume
+                                wait = float(e.response.headers.get("Retry-After", 2.0))
+                                await asyncio.sleep(wait)
+                            else:
+                                await asyncio.sleep(delay)
+
+                # Fire it in the background
+                task = asyncio.create_task(gcnc_loop())
+                
+                # SEPARATED SYSTEM: We use a brand new dictionary so !unspam ignores it
+                global gcnc_tasks
+                if 'gcnc_tasks' not in globals():
+                    gcnc_tasks = {}
+                    
+                if message.channel.id not in gcnc_tasks:
+                    gcnc_tasks[message.channel.id] = []
+                gcnc_tasks[message.channel.id].append(task)
+                
+                # Only Token 0 confirms it
+                if self.user.id % 8 == 0:
+                    await message.channel.send(f"✅ FORB1D🔥 GC Name Flasher running at {delay}s delay: `{base_name}`")
+            
+            except ValueError:
+                if self.user.id % 8 == 0:
+                    await message.channel.send("❌ Error: Delay must be a number (e.g. 1.5).")
+            except Exception as e:
+                if self.user.id % 8 == 0:
+                    await message.channel.send(f"❌ Command Error: {e}")
+
 
        
            
