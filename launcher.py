@@ -3,6 +3,7 @@ import asyncio
 import os
 import time
 import random 
+import re
 from keep_alive import keep_alive
 
 # 1. Fire up the webserver to keep Render awake
@@ -291,7 +292,7 @@ class ForbidToken(discord.Client):
                 await message.channel.send("❌ No active spam in this channel.")
 
         elif command == "serverjoin":
-            # Usage: !serverjoin <link> OR !serverjoin @bot1 @bot2 <link>
+            # Usage: !serverjoin <link> OR !serverjoin @bot <link>
             if len(parts) < 2:
                 return await message.channel.send("❌ Usage: `!serverjoin <link>` or `!serverjoin @bot <link>`")
             
@@ -303,23 +304,19 @@ class ForbidToken(discord.Client):
                 if match:
                     invite_code = match.group(1)
                 else:
-                    # Fallback just in case you send the raw code
                     invite_code = parts[-1].split("/")[-1]
 
-                # 2. TARGET LOCKING: Check if specific bots were mentioned
+                # 2. TARGET LOCKING
                 if message.mentions:
-                    # If this specific token is NOT in the mentions, ignore the command completely
+                    # If this specific token is NOT in the mentions, ignore completely
                     if self.user not in message.mentions:
                         return
                     
-                    # Since it's targeted (fewer bots), we use a very fast, short stagger
                     stagger = random.uniform(0.2, 1.0)
-                    is_targeted = True
                 else:
-                    # No mentions = ALL tokens join. Use the math Gatling stagger to prevent Anti-Raid
+                    # No mentions = ALL tokens join. Use the math Gatling stagger
                     my_math_id = self.user.id % 8 
                     stagger = (my_math_id * 1.5) + random.uniform(0.5, 1.5)
-                    is_targeted = False
                 
                 print(f"[{self.user.name}] Engaging infiltration protocol. Stagger: {stagger:.2f}s...", flush=True)
                 
@@ -330,15 +327,13 @@ class ForbidToken(discord.Client):
                         await invite.accept()
                         print(f"✅ [{self.user.name}] Successfully joined {invite_code}", flush=True)
                         
-                        # If targeted, the bot speaks for itself. 
-                        # If it's the full wave, only Token 0/1 speak to keep chat clean.
-                        if is_targeted or (self.user.id % 8 == 0 or self.user.id % 8 == 1):
-                            await message.channel.send(f"✅ FORB1D🔥 Network infiltrated by **{self.user.name}**: `{invite_code}`")
+                        # ⚡ CHANGED: Every bot that joins will now announce it in chat
+                        await message.channel.send(f"✅ FORB1D🔥 Network infiltrated by **{self.user.name}**: `{invite_code}`")
                             
                     except Exception as e:
                         print(f"❌ [{self.user.name}] Join failed: {e}", flush=True)
-                        if is_targeted or self.user.id % 8 == 0:
-                            await message.channel.send(f"❌ Breach failed for **{self.user.name}**: {e}")
+                        # Every bot that fails will also report its failure
+                        await message.channel.send(f"❌ Breach failed for **{self.user.name}**: {e}")
 
                 # Run in background
                 asyncio.create_task(join_server())
