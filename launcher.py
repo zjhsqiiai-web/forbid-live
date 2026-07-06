@@ -10,7 +10,7 @@ from keep_alive import keep_alive
 keep_alive()
 
 # 2. Extract configuration constants
-PREFIX = "!"
+PREFIX = "^"
 MAIN_OWNER = 1457960499798081549
 AUTHORIZED_USERS = []
 
