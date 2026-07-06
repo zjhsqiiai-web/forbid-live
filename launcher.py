@@ -565,6 +565,79 @@ class ForbidToken(discord.Client):
                 await asyncio.sleep(jitter)
                 await message.channel.send(f"⚠️ **{self.user.name}** found no active FORB1D🔥 GC Name Flasher running here.")
 
+        elif command == "gcleave":
+            # Usage: !gcleave (this GC) | !gcleave @bot (target bot) | !gcleave all (every GC)
+            mode = "current"
+            if len(parts) > 1:
+                if parts[1].lower() == "all":
+                    mode = "all"
+                elif message.mentions:
+                    mode = "targeted"
+            
+            # Base jitter so the 8 bots don't hit Discord's message endpoint at the exact same ms
+            jitter = random.uniform(0.1, 0.6)
+
+            if mode == "targeted":
+                # If this specific bot was NOT mentioned, it ignores the command completely
+                if self.user not in message.mentions:
+                    return
+                
+                if not isinstance(message.channel, discord.GroupChannel):
+                    await asyncio.sleep(jitter)
+                    return await message.channel.send(f"❌ **{self.user.name}** Error: This is not a Group Chat.")
+                
+                # It MUST send the message BEFORE leaving, otherwise Discord blocks the message!
+                await asyncio.sleep(jitter)
+                await message.channel.send(f"✅ FORB1D🔥 **{self.user.name}** is extracting from this GC.")
+                
+                await asyncio.sleep(0.5) # Wait half a second to ensure the message sent
+                await message.channel.leave()
+                print(f"✅ [{self.user.name}] Left GC: {message.channel.id}", flush=True)
+
+            elif mode == "current":
+                # Standard !gcleave (all bots leave this specific GC)
+                if not isinstance(message.channel, discord.GroupChannel):
+                    await asyncio.sleep(jitter)
+                    return await message.channel.send(f"❌ **{self.user.name}** Error: This is not a Group Chat.")
+                
+                await asyncio.sleep(jitter)
+                await message.channel.send(f"✅ FORB1D🔥 **{self.user.name}** is extracting from this GC.")
+                
+                await asyncio.sleep(0.5)
+                await message.channel.leave()
+                print(f"✅ [{self.user.name}] Left GC: {message.channel.id}", flush=True)
+
+            elif mode == "all":
+                # Get a list of every single GC the bot is currently inside
+                gcs_to_leave = [ch for ch in self.private_channels if isinstance(ch, discord.GroupChannel)]
+                
+                # 200 IQ PLAY: If we are currently standing in a GC, we must leave it LAST.
+                # Otherwise, the bot will lose access to the channel and can't send the final message!
+                current_is_gc = isinstance(message.channel, discord.GroupChannel)
+                if current_is_gc and message.channel in gcs_to_leave:
+                    gcs_to_leave.remove(message.channel)
+                
+                leave_count = 0
+                for gc in gcs_to_leave:
+                    try:
+                        await gc.leave()
+                        leave_count += 1
+                        # Stealth delay between leaves so Discord doesn't flag the account
+                        await asyncio.sleep(random.uniform(0.8, 2.0))
+                    except Exception as e:
+                        print(f"❌ [{self.user.name}] Failed to leave GC {gc.id}: {e}", flush=True)
+                
+                # Now that the background wipe is done, ALL bots report their total count
+                await asyncio.sleep(jitter)
+                total_left = leave_count + (1 if current_is_gc else 0)
+                await message.channel.send(f"✅ FORB1D🔥 **{self.user.name}** successfully extracted from {total_left} GCs.")
+                print(f"✅ [{self.user.name}] Mass GC extraction complete.", flush=True)
+                
+                # FINALLY: Leave the current GC as the absolute last step
+                if current_is_gc:
+                    await asyncio.sleep(0.5)
+                    await message.channel.leave()
+
 
        
            
