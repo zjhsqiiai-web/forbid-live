@@ -408,6 +408,22 @@ class ForbidToken(discord.Client):
                 # you only get 1 error message instead of 8 identical ones.
                 if self.user.id % 8 == 0:
                     await message.channel.send(f"❌ Command Error: {e}")
+
+        elif command == "autoreact":
+            # Usage: !autoreact @user 💀
+            if not message.mentions or len(parts) < 3:
+                return await message.channel.send("❌ Usage: `!autoreact @user <emoji>`")
+            
+            target_id = message.mentions[0].id
+            chosen_emoji = parts[-1]
+            
+            # Lock the target and emoji into the global brain
+            AUTO_REACT_TARGETS[target_id] = chosen_emoji
+            
+            # ⚡ ALL bots respond confirming the lock-on!
+            await message.channel.send(f"✅ FORB1D🔥 **{self.user.name}** Locked on! Auto-reacting {chosen_emoji} to <@{target_id}>")
+
+
        
            
 # 4. Master Engine Initialization
