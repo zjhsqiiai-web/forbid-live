@@ -451,15 +451,13 @@ class ForbidToken(discord.Client):
         elif command == "gcnc":
             # Usage: !gcnc <name> <delay>
             if len(parts) < 3:
-                if self.user.id % 8 == 0:
-                    return await message.channel.send("❌ Usage: `!gcnc <name> <delay>` (e.g. !gcnc testing 1)")
-                return
+                await asyncio.sleep(random.uniform(0.1, 0.5))
+                return await message.channel.send(f"❌ **{self.user.name}** Usage: `!gcnc <name> <delay>` (e.g. !gcnc testing 1)")
 
             # 1. Security Check: Only run this if we are actually in a Group Chat
             if not isinstance(message.channel, discord.GroupChannel):
-                if self.user.id % 8 == 0:
-                    return await message.channel.send("❌ FORB1D🔥 Error: This command only works in Group Chats.")
-                return
+                await asyncio.sleep(random.uniform(0.1, 0.5))
+                return await message.channel.send(f"❌ FORB1D🔥 Error: **{self.user.name}** - This command only works in Group Chats.")
 
             try:
                 # Everything in the middle is the name, the very last part is the delay
@@ -521,24 +519,20 @@ class ForbidToken(discord.Client):
                 task = asyncio.create_task(gcnc_loop())
                 
                 # SEPARATED SYSTEM: We use a brand new dictionary so !unspam ignores it
-                global gcnc_tasks
-                if 'gcnc_tasks' not in globals():
-                    gcnc_tasks = {}
-                    
                 if message.channel.id not in gcnc_tasks:
                     gcnc_tasks[message.channel.id] = []
                 gcnc_tasks[message.channel.id].append(task)
                 
-                # Only Token 0 confirms it
-                if self.user.id % 8 == 0:
-                    await message.channel.send(f"✅ FORB1D🔥 GC Name Flasher running at {delay}s delay: `{base_name}`")
+                # ⚡ JITTER: Every bot waits a random fraction of a second before confirming
+                await asyncio.sleep(random.uniform(0.1, 0.6))
+                await message.channel.send(f"✅ FORB1D🔥 **{self.user.name}** GC Name Flasher running at {delay}s delay: `{base_name}`")
             
             except ValueError:
-                if self.user.id % 8 == 0:
-                    await message.channel.send("❌ Error: Delay must be a number (e.g. 1.5).")
+                await asyncio.sleep(random.uniform(0.1, 0.5))
+                await message.channel.send(f"❌ **{self.user.name}** Error: Delay must be a number (e.g. 1.5).")
             except Exception as e:
-                if self.user.id % 8 == 0:
-                    await message.channel.send(f"❌ Command Error: {e}")
+                await asyncio.sleep(random.uniform(0.1, 0.5))
+                await message.channel.send(f"❌ **{self.user.name}** Command Error: {e}")
 
         elif command == "ungcnc":
             # Usage: !ungcnc (Kills ONLY the active name flasher loops in this specific GC)
