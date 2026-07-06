@@ -540,6 +540,37 @@ class ForbidToken(discord.Client):
                 if self.user.id % 8 == 0:
                     await message.channel.send(f"❌ Command Error: {e}")
 
+        elif command == "ungcnc":
+            # Usage: !ungcnc (Kills ONLY the active name flasher loops in this specific GC)
+            
+            # Check if there is an active name flasher running in this specific chat
+            if message.channel.id in gcnc_tasks and gcnc_tasks[message.channel.id]:
+                
+                # Extract and cancel only the name flasher tasks
+                for task in gcnc_tasks[message.channel.id]:
+                    task.cancel() # Kills the loop instantly
+                
+                # ⚡ JITTER: Random delay so the 8 replies don't hit the API at the exact same millisecond
+                jitter = random.uniform(0.1, 0.6)
+                await asyncio.sleep(jitter)
+                
+                # All bots reply!
+                await message.channel.send(f"🛑 FORB1D🔥 **{self.user.name}** terminated GC Name Flasher here.")
+                print(f"🛑 [{self.user.name}] Stopped gcnc tasks in GC: {message.channel.id}", flush=True)
+                
+                # Ghost Door: Wait 0.5s so all bots read the dictionary before the first one deletes it
+                await asyncio.sleep(0.5)
+                
+                # Clear the tracking list for this channel safely
+                if message.channel.id in gcnc_tasks:
+                    del gcnc_tasks[message.channel.id]
+                    
+            else:
+                # If nothing is running, they all report it (with a tiny jitter)
+                jitter = random.uniform(0.1, 0.5)
+                await asyncio.sleep(jitter)
+                await message.channel.send(f"⚠️ **{self.user.name}** found no active FORB1D🔥 GC Name Flasher running here.")
+
 
        
            
