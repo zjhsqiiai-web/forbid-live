@@ -268,6 +268,24 @@ class ForbidToken(discord.Client):
             
             except Exception as e:
                 await message.channel.send(f"❌ Error: {e}")
+
+        elif command == "unspam":
+            # Check if the channel has any tasks running
+            if message.channel.id in spam_tasks:
+                # Cancel every task in this channel's list
+                for task in spam_tasks[message.channel.id]:
+                    task.cancel()
+                
+                # Remove the channel from the dictionary so it doesn't try to cancel again
+                del spam_tasks[message.channel.id]
+                
+                # FORB1D🔥 trick: Only one bot sends the confirmation so the chat stays clean
+                if self.user.id % 8 == 0 or self.user.id % 8 == 1:
+                    await message.channel.send("✅ All spam processes in this channel terminated.")
+            else:
+                # Only let one alt send the error message
+                if self.user.id % 8 == 0 or self.user.id % 8 == 1:
+                    await message.channel.send("❌ No active spam in this channel.")
        
            
 # 4. Master Engine Initialization
