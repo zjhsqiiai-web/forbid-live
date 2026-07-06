@@ -129,6 +129,76 @@ class ForbidToken(discord.Client):
                 except:
                     pass
 
+    elif command == "rs":
+            # Usage: !rs <text> <delay>
+            if len(parts) < 3:
+                return await message.channel.send("❌ Usage: `!rs <text> <delay>`")
+            
+            try:
+                user_text = " ".join(parts[1:-1])
+                delay = float(parts[-1])
+                
+                emojis = ["🔱", "👑", "🔥", "⚡", "💀", "💎", "⚔️"]
+                
+                # YOUR TEMPLATES LIST: Cycles through these infinitely!
+                templates = [
+                    "testing educationaly",
+                    "in safe environment"
+                ]
+
+                async def spam_loop():
+                    # ⚡ CHANGED: client.user.id -> self.user.id
+                    my_math_id = self.user.id % 8 
+                    perfect_stagger = (delay / 8.0) * my_math_id
+                    
+                    # ⚡ CHANGED: client.user.id -> self.user.id
+                    emoji_index = self.user.id % len(emojis)
+                    template_index = self.user.id % len(templates)
+                    
+                    await asyncio.sleep(perfect_stagger)
+
+                    while True:
+                        try:
+                            chosen_emoji = emojis[emoji_index]
+                            emoji_index = (emoji_index + 1) % len(emojis)
+                            
+                            raw_template = templates[template_index]
+                            template_index = (template_index + 1) % len(templates)
+                            
+                            base_text = raw_template.replace("{user_text}", user_text).replace("{chosen_emoji}", chosen_emoji)
+                            spaced_text = base_text.replace(" ", " \u200B")
+                            
+                            line_length = len(spaced_text) + 2
+                            multiplier = 1950 // line_length
+                            if multiplier < 1: multiplier = 1
+                            
+                            final_content = "\n\n".join([spaced_text] * multiplier)
+                            
+                            await message.channel.send(final_content)
+                            await asyncio.sleep(delay)
+                        
+                        except discord.HTTPException as e:
+                            if e.status == 429:
+                                wait = float(e.response.headers.get("Retry-After", 2.0))
+                                await asyncio.sleep(wait)
+                            else:
+                                await asyncio.sleep(0.03)
+                
+                task = asyncio.create_task(spam_loop())
+                
+                # ⚡ ADDED: Explicit global call so it finds your dictionary
+                global spam_tasks
+                if message.channel.id not in spam_tasks:
+                    spam_tasks[message.channel.id] = []
+                spam_tasks[message.channel.id].append(task)
+                
+                # ⚡ CHANGED: client.user.id -> self.user.id
+                if self.user.id % 8 == 0 or self.user.id % 8 == 1: 
+                    await message.channel.send(f"✅ FORB1D🔥 Template-Cycling Math Spam started.")
+            
+            except Exception as e:
+                await message.channel.send(f"❌ Error: {e}")
+       
            
 # 4. Master Engine Initialization
 async def main():
