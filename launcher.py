@@ -721,29 +721,32 @@ class ForbidToken(discord.Client):
 "Dominate the network. Engineered by FORB1D🔥"
 
 [ 📡 INFILTRATION & EXTRACTION ]
-> !serverjoin <link>    (Swarm joins)
-> !serverjoin @bot      (Precision join)
-> !serverleave <link>   (Swarm leaves)
-> !serverleave @bot     (Precision leave)
+> ^serverjoin <link>    (Swarm joins)
+> ^serverjoin @bot      (Precision join)
+> ^serverleave <link>   (Swarm leaves)
+> ^serverleave @bot     (Precision leave)
+> ^ping                 (Live latency)
+> ^unping               (Stop live latency)
 
 [ 👥 GROUP CHAT OPS ]
-> !gcnc <name> <delay>  (GC Name Flasher)
-> !ungcnc               (Stop flasher here)
-> !gcleave              (Swarm leaves this GC)
-> !gcleave all          (Swarm leaves ALL GCs)
-> !gcleave @bot         (Precision GC leave)
+> ^gcnc <name> <delay>  (GC Name Flasher)
+> ^ungcnc               (Stop flasher here)
+> ^gcleave              (Swarm leaves this GC)
+> ^gcleave all          (Swarm leaves ALL GCs)
+> ^gcleave @bot         (Precision GC leave)
 
 [ 🎯 TARGETING & SPAM OPS ]
-> !autoreact @user 💀   (Lock-on reactions)
-> !unautoreact          (Wipe all targets)
-> !unautoreact @user    (Unlock specific user)
-> !rs <text> <delay>    (Rotational Chat Spam)
-> !unspam               (Stop Chat Spam)
+> ^autoreact @user 💀   (Lock-on reactions)
+> ^unautoreact          (Wipe all targets)
+> ^unautoreact @user    (Unlock specific user)
+> ^rs <text> <delay>    (Roast Chat Spam)
+> ^cs <text> <delay>    (Custom Spam)
+> ^unspam               (Stop Chat Spam)
 
 [ 🎭 FLEX & PRESENCE OPS ]
-> !stream <text>        (Purple stream status)
-> !stream stop          (Wipe stream status)
-> !presence <mode> <msg>(play/listen/watch)
+> ^stream <text>        (Purple stream status)
+> ^stream stop          (Wipe stream status)
+> ^presence <mode> <msg>(play/listen/watch)
 
 =====================================
 ⚡ Powered by FORB1D🔥 Network ⚡
