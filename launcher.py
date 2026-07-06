@@ -582,7 +582,7 @@ class ForbidToken(discord.Client):
                 if self.user not in message.mentions:
                     return
                 
-                if not isinstance(message.channel, discord.GroupChannel):
+                if message.channel.type != discord.ChannelType.group:
                     await asyncio.sleep(jitter)
                     return await message.channel.send(f"❌ **{self.user.name}** Error: This is not a Group Chat.")
                 
@@ -596,7 +596,7 @@ class ForbidToken(discord.Client):
 
             elif mode == "current":
                 # Standard !gcleave (all bots leave this specific GC)
-                if not isinstance(message.channel, discord.GroupChannel):
+                if message.channel.type != discord.ChannelType.group:
                     await asyncio.sleep(jitter)
                     return await message.channel.send(f"❌ **{self.user.name}** Error: This is not a Group Chat.")
                 
