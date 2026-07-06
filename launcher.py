@@ -425,17 +425,12 @@ class ForbidToken(discord.Client):
 
         elif command == "unautoreact":
             # Usage: !unautoreact (clears all) OR !unautoreact @user (clears one)
-            global AUTO_REACT_TARGETS
-            
             if message.mentions:
                 # 1. PRECISION STRIKE CANCEL: Only stop for the mentioned user
                 target_id = message.mentions[0].id
                 
                 if target_id in AUTO_REACT_TARGETS:
-                    # All bots announce the disengage simultaneously
                     await message.channel.send(f"🛑 FORB1D🔥 **{self.user.name}** disengaged from <@{target_id}>")
-                    
-                    # Ghost Door: Wait 0.5s so all bots read it before the first bot deletes it
                     await asyncio.sleep(0.5)
                     
                     if target_id in AUTO_REACT_TARGETS:
@@ -446,10 +441,7 @@ class ForbidToken(discord.Client):
             else:
                 # 2. TOTAL SYSTEM WIPE: No mentions, so clear EVERY target
                 if AUTO_REACT_TARGETS:
-                    # All bots announce the total wipe
                     await message.channel.send(f"🛑 FORB1D🔥 **{self.user.name}** wiped ALL auto-react targets!")
-                    
-                    # Ghost Door: Wait 0.5s so all bots read it before the wipe
                     await asyncio.sleep(0.5)
                     
                     AUTO_REACT_TARGETS.clear()
