@@ -709,6 +709,50 @@ class ForbidToken(discord.Client):
             except Exception as e:
                 await message.channel.send(f"❌ **{self.user.name}** Failed to update presence: {e}")
 
+        elif command == "help":
+            # STAGGER MATH: All 8 bots respond, staggered by 1 second so Discord doesn't block them!
+            stagger = (self.user.id % 8 * 1.0) + random.uniform(0.1, 0.4)
+            await asyncio.sleep(stagger)
+            
+            # Wrapped in ```yaml to give it that colored, luxury terminal aesthetic in Discord
+            help_panel = f"""```yaml
+🔥 FORB1D OPS | MASTER CONTROL 🔥
+=====================================
+"Dominate the network. Engineered by FORB1D🔥"
+
+[ 📡 INFILTRATION & EXTRACTION ]
+> !serverjoin <link>    (Swarm joins)
+> !serverjoin @bot      (Precision join)
+> !serverleave <link>   (Swarm leaves)
+> !serverleave @bot     (Precision leave)
+
+[ 👥 GROUP CHAT OPS ]
+> !gcnc <name> <delay>  (GC Name Flasher)
+> !ungcnc               (Stop flasher here)
+> !gcleave              (Swarm leaves this GC)
+> !gcleave all          (Swarm leaves ALL GCs)
+> !gcleave @bot         (Precision GC leave)
+
+[ 🎯 TARGETING & SPAM OPS ]
+> !autoreact @user 💀   (Lock-on reactions)
+> !unautoreact          (Wipe all targets)
+> !unautoreact @user    (Unlock specific user)
+> !rs <text> <delay>    (Rotational Chat Spam)
+> !unspam               (Stop Chat Spam)
+
+[ 🎭 FLEX & PRESENCE OPS ]
+> !stream <text>        (Purple stream status)
+> !stream stop          (Wipe stream status)
+> !presence <mode> <msg>(play/listen/watch)
+
+=====================================
+⚡ Powered by FORB1D🔥 Network ⚡
+[ {self.user.name} - System Online ]
+```"""
+            try:
+                await message.channel.send(help_panel)
+            except Exception as e:
+                print(f"❌ [{self.user.name}] Help Panel failed: {e}", flush=True)
 
        
            
