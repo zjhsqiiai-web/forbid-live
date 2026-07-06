@@ -276,16 +276,19 @@ class ForbidToken(discord.Client):
                 for task in spam_tasks[message.channel.id]:
                     task.cancel()
                 
-                # Remove the channel from the dictionary so it doesn't try to cancel again
-                del spam_tasks[message.channel.id]
+                # All 8 bots slip through the open gate and send the confirmation
+                await message.channel.send("✅ All spam processes in this channel terminated.")
                 
-                # FORB1D🔥 trick: Only one bot sends the confirmation so the chat stays clean
-                if self.user.id % 8 == 0 or self.user.id % 8 == 1:
-                    await message.channel.send("✅ All spam processes in this channel terminated.")
+                # FORB1D🔥 Ghost Door: Wait 0.5 seconds before clearing the memory
+                # This gives all 8 bots enough time to read it before it gets deleted!
+                await asyncio.sleep(0.5)
+                
+                # Clean up the dictionary safely so we don't get a KeyError
+                if message.channel.id in spam_tasks:
+                    del spam_tasks[message.channel.id]
             else:
-                # Only let one alt send the error message
-                if self.user.id % 8 == 0 or self.user.id % 8 == 1:
-                    await message.channel.send("❌ No active spam in this channel.")
+                # If there was truly no spam running, all 8 will say this
+                await message.channel.send("❌ No active spam in this channel.")
        
            
 # 4. Master Engine Initialization
