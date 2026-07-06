@@ -641,6 +641,39 @@ class ForbidToken(discord.Client):
                     await asyncio.sleep(1.0)
                     await message.channel.leave()
 
+        elif command == "stream":
+            # Usage: !stream <Text> (Turns it on) | !stream stop (Turns it off)
+            if len(parts) < 2:
+                await asyncio.sleep(self.user.id % 8 * 1.0)
+                return await message.channel.send(f"❌ **{self.user.name}** Usage: `!stream <text>` or `!stream stop`")
+
+            stream_text = " ".join(parts[1:])
+            
+            # STAGGER MATH: So all 8 bots don't hit the Discord presence API at the exact same millisecond
+            stagger = (self.user.id % 8 * 1.0) + random.uniform(0.1, 0.5)
+            await asyncio.sleep(stagger)
+
+            try:
+                if stream_text.lower() == "stop":
+                    # Clear the rich presence (turns off the streaming status)
+                    await self.change_presence(activity=None)
+                    
+                    await asyncio.sleep(0.5)
+                    await message.channel.send(f"🛑 FORB1D🔥 **{self.user.name}** stopped streaming.")
+                else:
+                    # Discord requires a Twitch or YT link for the purple stream icon to appear
+                    twitch_url = "https://www.twitch.tv/forb1d"
+                    
+                    # Lock in the Streaming status
+                    activity = discord.Streaming(name=stream_text, url=twitch_url)
+                    await self.change_presence(activity=activity)
+                    
+                    await asyncio.sleep(0.5)
+                    await message.channel.send(f"🟣 FORB1D🔥 **{self.user.name}** is now streaming: `{stream_text}`")
+                    
+            except Exception as e:
+                await message.channel.send(f"❌ **{self.user.name}** Failed to update status: {e}")
+
 
        
            
