@@ -341,6 +341,73 @@ class ForbidToken(discord.Client):
             except Exception as e:
                 if self.user.id % 8 == 0:
                     await message.channel.send(f"❌ Command Error: {e}")
+
+        elif command == "serverleave":
+            # Usage: !serverleave <link> OR !serverleave @bot <link>
+            if len(parts) < 2:
+                return await message.channel.send("❌ Usage: `!serverleave <link>` or `!serverleave @bot <link>`")
+            
+            try:
+                # 1. Regex to pull the exact code from ANYWHERE in the message
+                invite_pattern = r"(?:https?://)?(?:www\.)?(?:discord\.gg|discord\.com/invite|dsc\.gg)/([a-zA-Z0-9-]+)"
+                match = re.search(invite_pattern, message.content)
+                
+                if match:
+                    invite_code = match.group(1)
+                else:
+                    invite_code = parts[-1].split("/")[-1]
+
+                # 2. TARGET LOCKING: Check if specific bots were mentioned
+                if message.mentions:
+                    if self.user not in message.mentions:
+                        return
+                    # Fast extraction for targeted bots
+                    stagger = random.uniform(0.2, 1.0)
+                    is_targeted = True
+                else:
+                    # Math stagger for full wave extraction to avoid API spam flags
+                    my_math_id = self.user.id % 8 
+                    stagger = (my_math_id * 1.0) + random.uniform(0.2, 1.0)
+                    is_targeted = False
+                
+                print(f"[{self.user.name}] Engaging extraction protocol. Stagger: {stagger:.2f}s...", flush=True)
+                
+                async def leave_server():
+                    await asyncio.sleep(stagger)
+                    try:
+                        # Fetch the invite to identify WHICH server it belongs to
+                        invite = await self.fetch_invite(invite_code)
+                        guild_id = invite.guild.id
+                        
+                        # Check if the bot is actually inside this specific server
+                        guild_to_leave = self.get_guild(guild_id)
+                        
+                        if guild_to_leave:
+                            await guild_to_leave.leave()
+                            print(f"✅ [{self.user.name}] Successfully extracted from {guild_to_leave.name}", flush=True)
+                            
+                            # ⚡ CHANGED: Every bot that successfully leaves will now announce it
+                            await message.channel.send(f"✅ FORB1D🔥 **{self.user.name}** extracted from: `{guild_to_leave.name}`")
+                        else:
+                            print(f"⚠️ [{self.user.name}] Aborted: Not in network {invite_code}", flush=True)
+                            
+                            # ⚡ CHANGED: Every bot will announce if it wasn't in the server
+                            await message.channel.send(f"⚠️ **{self.user.name}** is not in that network.")
+                                
+                    except Exception as e:
+                        print(f"❌ [{self.user.name}] Extraction failed: {e}", flush=True)
+                        
+                        # ⚡ CHANGED: Every bot that hits an error will report it
+                        await message.channel.send(f"❌ Extraction failed for **{self.user.name}**: {e}")
+
+                # Run in background
+                asyncio.create_task(leave_server())
+
+            except Exception as e:
+                # We leave this outer one filtered so if the link itself is completely broken, 
+                # you only get 1 error message instead of 8 identical ones.
+                if self.user.id % 8 == 0:
+                    await message.channel.send(f"❌ Command Error: {e}")
        
            
 # 4. Master Engine Initialization
