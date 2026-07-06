@@ -674,6 +674,41 @@ class ForbidToken(discord.Client):
             except Exception as e:
                 await message.channel.send(f"❌ **{self.user.name}** Failed to update status: {e}")
 
+        elif command == "presence":
+            # Usage: !presence <play/listen/watch> <text>
+            if len(parts) < 3:
+                await asyncio.sleep(self.user.id % 8 * 1.0)
+                return await message.channel.send(f"❌ **{self.user.name}** Usage: `!presence <play/listen/watch> <text>`")
+
+            activity_type = parts[1].lower()
+            presence_text = " ".join(parts[2:])
+
+            # STAGGER MATH: Perfect 1-second intervals so the API doesn't flag the sudden mass-update
+            stagger = (self.user.id % 8 * 1.0) + random.uniform(0.1, 0.5)
+            await asyncio.sleep(stagger)
+
+            try:
+                if activity_type == "play":
+                    act = discord.Game(name=presence_text)
+                    msg = f"🎮 FORB1D🔥 **{self.user.name}** is playing: `{presence_text}`"
+                elif activity_type == "listen":
+                    act = discord.Activity(type=discord.ActivityType.listening, name=presence_text)
+                    msg = f"🎧 FORB1D🔥 **{self.user.name}** is listening to: `{presence_text}`"
+                elif activity_type == "watch":
+                    act = discord.Activity(type=discord.ActivityType.watching, name=presence_text)
+                    msg = f"📺 FORB1D🔥 **{self.user.name}** is watching: `{presence_text}`"
+                else:
+                    return await message.channel.send(f"❌ **{self.user.name}** Invalid mode! Use play, listen, or watch.")
+
+                # Lock in the new status
+                await self.change_presence(activity=act)
+                
+                await asyncio.sleep(0.5)
+                await message.channel.send(msg)
+
+            except Exception as e:
+                await message.channel.send(f"❌ **{self.user.name}** Failed to update presence: {e}")
+
 
        
            
