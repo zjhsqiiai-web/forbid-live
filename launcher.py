@@ -482,7 +482,7 @@ class ForbidToken(discord.Client):
                     template_index = self.user.id % len(templates)
                     
                     # To keep the exact 1-second pace, each bot waits 8x the delay between its own turns
-                    cycle_wait = delay * 8.0
+                    cycle_wait = delay * 4.0
                     
                     while True:
                         try:
@@ -502,7 +502,7 @@ class ForbidToken(discord.Client):
                                 new_gc_name = new_gc_name[:100]
                             
                             await message.channel.edit(name=new_gc_name)
-                            print(f"🔄 [{self.user.name}] Flashed GC name: {new_gc_name}", flush=True)
+                        #   print(f"🔄 [{self.user.name}] Flashed GC name: {new_gc_name}", flush=True)
                             
                             # Wait for the other 7 tokens to take their turns
                             await asyncio.sleep(cycle_wait) 
