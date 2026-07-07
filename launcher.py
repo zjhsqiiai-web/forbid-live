@@ -17,10 +17,7 @@ logging.getLogger('discord.http').setLevel(logging.ERROR)
 global_last_log = 0
 
 # 🟢 THE SWARM REGISTRY: Tracks breathing tokens in real-time
-# 🟢 GLOBAL ENTERPRISE CLUSTER STATE
-ACTIVE_SWARM = []            # Tracks live bot IDs
-SPAM_QUEUE = asyncio.Queue()  # The high-speed conveyor belt for jobs
-ACTIVE_SPAM_CHANNELS = set()  # Tracks which channels are currently running
+ACTIVE_SWARM = []
 
 # 2. Extract configuration constants
 PREFIX = "^"
@@ -42,53 +39,16 @@ class ForbidToken(discord.Client):
         import aiohttp
         print(f"🟢 [{self.user.name}] Linked to Gateway & Operational.", flush=True)
         
+        # 🟢 HEALTH MONITOR: Bot registers itself as ALIVE
         if self.user.id not in ACTIVE_SWARM:
             ACTIVE_SWARM.append(self.user.id)
+            print(f"📊 [System] Swarm Capacity updated: {len(ACTIVE_SWARM)} Nodes Active.", flush=True)
 
         self.raw_session = aiohttp.ClientSession(headers={
             "Authorization": self.http.token,
             "Content-Type": "application/json"
         })
-        
-        # 🟢 START THE PERMANENT BACKGROUND CLUSTER CONSUMER
-        self.loop.create_task(self.queue_consumer())
         self.loop.create_task(self.ram_cleaner_loop())
-
-    # 🚀 THE CONSUMER NODE (Runs inside every single bot instance)
-    async def queue_consumer(self):
-        await self.wait_until_ready()
-        while True:
-            # 1. Silently wait for a job to drop onto the conveyor belt
-            job = await SPAM_QUEUE.get()
-            channel_id = job["channel_id"]
-            content = job["content"]
-            
-            # Failsafe: If unspam was called, instantly discard the job
-            if channel_id not in ACTIVE_SPAM_CHANNELS:
-                SPAM_QUEUE.task_done()
-                continue
-                
-            url = f"https://discord.com/api/v9/channels/{channel_id}/messages"
-            payload = {"content": content}
-            
-            try:
-                # 2. Blast the payload out using this bot's raw socket
-                async with self.raw_session.post(url, json=payload) as response:
-                    if response.status == 429:
-                        rate_data = await response.json()
-                        retry_after = rate_data.get("retry_after", 1.0)
-                        
-                        global global_last_log
-                        if time.time() - global_last_log > 60:
-                            print(f"⚠️ [Cluster Rate Limit] Node backed off for {retry_after}s.", flush=True)
-                            global_last_log = time.time()
-                            
-                        await asyncio.sleep(retry_after)
-            except Exception as e:
-                print(f"⚠️ Node Network Error: {e}", flush=True)
-                
-            # 3. Tell the queue the job is successfully finished
-            SPAM_QUEUE.task_done()
 
     # 🛑 ADD THIS RIGHT UNDER ON_READY
     async def on_disconnect(self):
@@ -234,50 +194,79 @@ class ForbidToken(discord.Client):
     "# █▓▒░ 👑 FORBID KING ║ ➔ 👿 **{user_text} GULAMI KR** ⪧ 【🔱】"
                 ]
 
-                # 🟢 1. FLAG THE CHANNEL AS ACTIVE
-                ACTIVE_SPAM_CHANNELS.add(message.channel.id)
-
-                async def producer_loop():
-                    emoji_index, template_index = 0, 0
+                async def spam_loop():
+                    # ⚡ CHANGED: client.user.id -> self.user.id
+                    # 🟢 ENTERPRISE MATH: Auto-adjusts to the live swarm size!
+                    current_swarm_size = max(1, len(ACTIVE_SWARM))
                     
-                    # Loop runs ONLY while this channel is marked active
-                    while message.channel.id in ACTIVE_SPAM_CHANNELS:
-                        chosen_emoji = emojis[emoji_index]
-                        emoji_index = (emoji_index + 1) % len(emojis)
+                    try:
+                        # Bot finds its exact place in the live line-up (0, 1, 2, 3...)
+                        my_math_id = ACTIVE_SWARM.index(self.user.id)
+                    except ValueError:
+                        my_math_id = 0
                         
-                        raw_template = templates[template_index]
-                        template_index = (template_index + 1) % len(templates)
+                    perfect_stagger = (delay / float(current_swarm_size)) * my_math_id
+                    
+                    # ⚡ CHANGED: client.user.id -> self.user.id
+                    emoji_index = self.user.id % len(emojis)
+                    template_index = self.user.id % len(templates)
+                    
+                    await asyncio.sleep(perfect_stagger)
+
+                    while True:
+                        try:
+                            chosen_emoji = emojis[emoji_index]
+                            emoji_index = (emoji_index + 1) % len(emojis)
+                            
+                            raw_template = templates[template_index]
+                            template_index = (template_index + 1) % len(templates)
+                            
+                            base_text = raw_template.replace("{user_text}", user_text).replace("{chosen_emoji}", chosen_emoji)
+                            spaced_text = base_text.replace(" ", " \u200B")
+                            
+                            line_length = len(spaced_text) + 2
+                            multiplier = 1950 // line_length
+                            if multiplier < 1: multiplier = 1
+                            
+                            final_content = "\n\n".join([spaced_text] * multiplier)
+                            
+                            # 🚀 PURE SOCKET INJECTION INSTEAD
+                            url = f"https://discord.com/api/v9/channels/{message.channel.id}/messages"
+                            payload = {"content": final_content}
+                            
+                            async with self.raw_session.post(url, json=payload) as response:
+                                if response.status == 429:
+                                    rate_data = await response.json()
+                                    retry_after = rate_data.get("retry_after", 1.0)
+                                    
+                                    # 🟢 THIS IS THE NEW PART YOU NEED TO ADD:
+                                    global global_last_log
+                                    if time.time() - global_last_log > 60:
+                                        print(f"⚠️ [System] Network Rate Limit hit. Pausing for {retry_after}s. (Muting further logs for 60s)", flush=True)
+                                        global_last_log = time.time()
+                                        
+                                    await asyncio.sleep(retry_after)
+                                else:
+                                    await asyncio.sleep(delay)
                         
-                        base_text = raw_template.replace("{user_text}", user_text).replace("{chosen_emoji}", chosen_emoji)
-                        spaced_text = base_text.replace(" ", " \u200B")
-                        
-                        line_length = len(spaced_text) + 2
-                        multiplier = max(1, 1950 // line_length)
-                        final_content = "\n\n".join([spaced_text] * multiplier)
-                        
-                        # 🚀 2. DROP THE PAYLOAD ONTO THE CONVEYOR BELT
-                        await SPAM_QUEUE.put({"channel_id": message.channel.id, "content": final_content})
-                        
-                        # 3. DYNAMIC DELAY: Adjusts perfectly to how many bots are alive
-                        swarm_size = max(1, len(ACTIVE_SWARM))
-                        await asyncio.sleep(delay / float(swarm_size))
+                        except Exception as e:
+                            print(f"⚠️ Socket Error: {e}", flush=True)
+                            await asyncio.sleep(0.1)
                 
-                # 👑 4. MASTER TOKEN CHECK: Only Token 0 is allowed to load the belt
-                if len(ACTIVE_SWARM) > 0 and self.user.id == ACTIVE_SWARM[0]:
-                    task = asyncio.create_task(producer_loop(), name=f"spam_{message.channel.id}")
-                    
-                    global spam_tasks
-                    if message.channel.id not in spam_tasks:
-                        spam_tasks[message.channel.id] = []
-                    spam_tasks[message.channel.id].append(task)
-                    
-                    await message.channel.send(f"✅ FORB1D🔥 Cluster Dispatcher started at {delay}s baseline.")
-                    # 🛑 DROP THIS EXCEPT BLOCK RIGHT HERE TO FIX THE SYNTAX ERROR
+                task = asyncio.create_task(spam_loop(), name=f"spam_{message.channel.id}")
+                
+                # ⚡ ADDED: Explicit global call so it finds your dictionary
+                global spam_tasks
+                if message.channel.id not in spam_tasks:
+                    spam_tasks[message.channel.id] = []
+                spam_tasks[message.channel.id].append(task)
+                
+                # ⚡ CHANGED: client.user.id -> self.user.id
+                if self.user.id % 8 == 0 or self.user.id % 8 == 1: 
+                    await message.channel.send(f"✅ FORB1D🔥 Template-Cycling Math Spam started.")
+            
             except Exception as e:
-                if len(ACTIVE_SWARM) > 0 and self.user.id == ACTIVE_SWARM[0]:
-                    await message.channel.send(f"❌ Dispatcher Error: {e}")
-
-    
+                await message.channel.send(f"❌ Error: {e}")
 
 
         elif command == "cs":
@@ -362,16 +351,21 @@ class ForbidToken(discord.Client):
         # 🛑 YOU WERE MISSING THIS HEADER RIGHT HERE 🛑
         # =========================================================
         elif command == "unspam":
-            # Just remove the channel from the active list!
-            if message.channel.id in ACTIVE_SPAM_CHANNELS:
-                ACTIVE_SPAM_CHANNELS.discard(message.channel.id)
-                
-                if len(ACTIVE_SWARM) > 0 and self.user.id == ACTIVE_SWARM[0]:
-                    await message.channel.send(f"🛑 FORB1D🔥 Conveyor belt stopped for this channel.")
+            
+            # Direct Core Search: Find and kill tasks by their hidden registry names
+            killed = False
+            for task in asyncio.all_tasks():
+                if task.get_name() == f"spam_{message.channel.id}":
+                    task.cancel()
+                    killed = True
+            
+            # Staggered confirmation so all 8 bots reply cleanly
+            await asyncio.sleep(self.user.id % 8 * 1.0)
+            if killed:
+                await message.channel.send(f"🛑 FORB1D🔥 **{self.user.name}** terminated all zombie spam loops here.")
             else:
-                if len(ACTIVE_SWARM) > 0 and self.user.id == ACTIVE_SWARM[0]:
-                    await message.channel.send(f"⚠️ FORB1D🔥 found no active cluster feeds here.")
-                    
+                await message.channel.send(f"⚠️ **{self.user.name}** found no active spam in this channel.")
+
         elif command == "serverjoin":
             # Usage: !serverjoin <link> OR !serverjoin @bot <link>
             if len(parts) < 2:
