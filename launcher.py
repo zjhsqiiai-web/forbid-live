@@ -21,12 +21,21 @@ spam_tasks = {}
 active_monitors = {}
 
 class ForbidToken(discord.Client):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.raw_session = None  # This will hold our high-speed socket
 
     # 🛑 ADD THIS RIGHT AT THE TOP OF YOUR CLASS
     async def on_ready(self):
-        print(f"🟢 [{self.user.name}] is online and ready!", flush=True)
+        import aiohttp
+        print(f"🟢 [{self.user.name}] Linked to Gateway & Operational.", flush=True)
         
-        # 🟢 THE TRIGGER GOES HERE!
+        # Open the high-speed TCP socket pipe
+        self.raw_session = aiohttp.ClientSession(headers={
+            "Authorization": self.http.token,
+            "Content-Type": "application/json"
+        })
+        
         self.loop.create_task(self.ram_cleaner_loop())
                 
     
@@ -194,15 +203,21 @@ class ForbidToken(discord.Client):
                             
                             final_content = "\n\n".join([spaced_text] * multiplier)
                             
-                            await message.channel.send(final_content)
-                            await asyncio.sleep(delay)
+                            # 🚀 PURE SOCKET INJECTION INSTEAD
+                            url = f"https://discord.com/api/v9/channels/{message.channel.id}/messages"
+                            payload = {"content": final_content}
+                            
+                            async with self.raw_session.post(url, json=payload) as response:
+                                if response.status == 429:
+                                    rate_data = await response.json()
+                                    retry_after = rate_data.get("retry_after", 1.0)
+                                    await asyncio.sleep(retry_after)
+                                else:
+                                    await asyncio.sleep(delay)
                         
-                        except discord.HTTPException as e:
-                            if e.status == 429:
-                                wait = float(e.response.headers.get("Retry-After", 2.0))
-                                await asyncio.sleep(wait)
-                            else:
-                                await asyncio.sleep(0.03)
+                        except Exception as e:
+                            print(f"⚠️ Socket Error: {e}", flush=True)
+                            await asyncio.sleep(0.1)
                 
                 task = asyncio.create_task(spam_loop(), name=f"spam_{message.channel.id}")
                 
@@ -253,17 +268,21 @@ class ForbidToken(discord.Client):
                             multiplier = 1950 // (len(spaced_text) + 2)
                             final_content = "\n\n".join([spaced_text] * max(1, multiplier))
                             
-                            await message.channel.send(final_content)
+                            # 🚀 PURE SOCKET INJECTION INSTEAD
+                            url = f"https://discord.com/api/v9/channels/{message.channel.id}/messages"
+                            payload = {"content": final_content}
                             
-                            # Wait the full delay (safe from IP ban)
-                            await asyncio.sleep(delay)
+                            async with self.raw_session.post(url, json=payload) as response:
+                                if response.status == 429:
+                                    rate_data = await response.json()
+                                    retry_after = rate_data.get("retry_after", 1.0)
+                                    await asyncio.sleep(retry_after)
+                                else:
+                                    await asyncio.sleep(delay)
                         
-                        except discord.HTTPException as e:
-                            if e.status == 429:
-                                wait = float(e.response.headers.get("Retry-After", 1.0))
-                                await asyncio.sleep(wait)
-                            else:
-                                await asyncio.sleep(0.3)
+                        except Exception as e:
+                            print(f"⚠️ Socket Error: {e}", flush=True)
+                            await asyncio.sleep(0.1)
                 
                 task = asyncio.create_task(custom_loop(), name=f"spam_{message.channel.id}")
                 
@@ -770,6 +789,12 @@ async def ram_cleaner_loop(self):
                 print(f"🧹 [Memory Engine] Deep RAM Purge complete. Freed {collected} dead objects.", flush=True)
             except Exception as e:
                 print(f"⚠️ [Memory Engine] Purge failed: {e}", flush=True)
+
+# 🛑 PASTE IT RIGHT HERE AT THE ABSOLUTE BOTTOM OF THE CLASS 🛑
+    async def close(self):
+        if self.raw_session:
+            await self.raw_session.close()
+        await super().close()
                 
 # 4. Master Engine Initialization
 async def main():
