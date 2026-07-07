@@ -6,9 +6,6 @@ import random
 import re
 from keep_alive import keep_alive
 
-# 1. Fire up the webserver to keep Render awake
-keep_alive()
-
 # 2. Extract configuration constants
 PREFIX = "^"
 MAIN_OWNER = 1457960499798081549
@@ -770,4 +767,8 @@ async def main():
     await asyncio.gather(*clients)
 
 if __name__ == "__main__":
+    # 1. Start the web server in the background ONLY after everything is loaded
+    keep_alive()
+    
+    # 2. Ignite the botnet
     asyncio.run(main())
