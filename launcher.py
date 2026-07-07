@@ -560,7 +560,12 @@ class ForbidToken(discord.Client):
                 await asyncio.sleep(random.uniform(0.1, 0.5))
                 await message.channel.send(f"❌ **{self.user.name}** Command Error: {e}")
 
-        # Direct Core Search for GC tasks
+        # =========================================================
+        # 🛑 ADD THIS HEADER SO IT DOESN'T AUTO-KILL ITSELF 🛑
+        # =========================================================
+        elif command == "ungcnc":
+
+            # Direct Core Search for GC tasks
             killed = False
             for task in asyncio.all_tasks():
                 if task.get_name() == f"gcnc_{message.channel.id}":
@@ -576,6 +581,7 @@ class ForbidToken(discord.Client):
                 print(f"🛑 [{self.user.name}] Stopped gcnc tasks in GC: {message.channel.id}", flush=True)
             else:
                 await message.channel.send(f"⚠️ **{self.user.name}** found no active FORB1D🔥 GC Name Flasher running here.")
+
 
         elif command == "gcleave":
             # Usage: !gcleave (this GC) | !gcleave @bot (target bot) | !gcleave all (every GC)
