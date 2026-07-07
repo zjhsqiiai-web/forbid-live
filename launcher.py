@@ -7,8 +7,14 @@ import re
 import logging
 from keep_alive import keep_alive
 
-# TURN ON DISCORD X-RAY
+# 1. TURN ON DISCORD X-RAY (Keeps your general boot-up info flowing)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s:%(name)s: %(message)s')
+
+# 2. 🛑 THE GAG ORDER: Mutes the specific HTTP rate limit spam
+logging.getLogger('discord.http').setLevel(logging.ERROR)
+
+# 3. SMART LOG MATRIX TIMER (For your custom loops)
+global_last_log = 0
 
 # 2. Extract configuration constants
 PREFIX = "^"
