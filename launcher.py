@@ -770,8 +770,7 @@ class ForbidToken(discord.Client):
                 print(f"❌ [{self.user.name}] Help Panel failed: {e}", flush=True)
 
        
-           
-async def ram_cleaner_loop(self):
+    async def ram_cleaner_loop(self):
         import gc
         await self.wait_until_ready()
         if self.user.id % 8 != 0:
@@ -791,7 +790,7 @@ async def ram_cleaner_loop(self):
                 print(f"⚠️ [Memory Engine] Purge failed: {e}", flush=True)
 
 # 🛑 PASTE IT RIGHT HERE AT THE ABSOLUTE BOTTOM OF THE CLASS 🛑
-async def close(self):
+    async def close(self):
         if self.raw_session:
             await self.raw_session.close()
         await super().close()
