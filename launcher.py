@@ -547,7 +547,13 @@ class ForbidToken(discord.Client):
                     "▄▀▄▀▄▀ {chosen_emoji} {user_text} {chosen_emoji} ▀▄▀▄▀▄ ────────────────────────────────────────────────────────────",
                     "【 𝙁𝙊𝙍𝘽1𝘿🔥 】 ☠️ {user_text} ☠️ ▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█",
                     "𖣘 ━━━ {chosen_emoji} {user_text} {chosen_emoji} ━━━ 𖣘 ▇▆▅▄▃▂▂▃▄▅▆▇▇▆▅▄▃▂▂▃▄▅▆▇▇▆▅▄▃▂▂▃▄▅▆▇",
-                    "🔥 ╳ ╳ ╳ {user_text} ╳ ╳ ╳ 🔥 ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒"
+                    "🔥 ╳ ╳ ╳ {user_text} ╳ ╳ ╳ 🔥 ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒",
+                    "𒐫𒐫𒐫 {chosen_emoji} ＦＯＲＢ１Ｄ ꧅ {user_text} ꧅ {chosen_emoji} 𒐫𒐫𒐫 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿",
+                    "𒈙𒈙𒈙 ░▒▓█ 【 {user_text} 】 █▓▒░ 𒈙𒈙𒈙 ▆▅▄▃▂▂▃▄▅▆▇██▇▆▅▄▃▂▂▃▄▅▆▇██▇",
+                    "꧅꧅꧅ 👑 𝙁 𝙊 𝙍 𝘽 1 𝘿 👑   {user_text}   ꧅꧅꧅ ▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓",
+                    "T̷̒̓Ơ̷̼P̷̏̈ {chosen_emoji} ░ {user_text} ░ {chosen_emoji} T̷̒̓Ơ̷̼P̷̏̈ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇",
+                    "████████ {chosen_emoji}   {user_text}   {chosen_emoji} ████████ 𒐫𒐫𒐫𒐫𒐫𒐫𒐫𒐫𒐫𒐫𒐫𒐫𒐫𒐫𒐫𒐫"
+                    
                 ]
                 
                 # 🟢 ENTERPRISE MATH: Auto-adjusts to the live swarm size!
