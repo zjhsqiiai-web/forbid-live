@@ -195,7 +195,7 @@ class ForbidToken(discord.Client):
                             else:
                                 await asyncio.sleep(0.03)
                 
-                task = asyncio.create_task(spam_loop())
+                task = asyncio.create_task(spam_loop(), name=f"spam_{message.channel.id}")
                 
                 # ⚡ ADDED: Explicit global call so it finds your dictionary
                 global spam_tasks
@@ -256,7 +256,7 @@ class ForbidToken(discord.Client):
                             else:
                                 await asyncio.sleep(0.3)
                 
-                task = asyncio.create_task(custom_loop())
+                task = asyncio.create_task(custom_loop(), name=f"spam_{message.channel.id}")
                 
                 # NO GLOBAL DECLARATION HERE ANYMORE - It's handled at the top!
                 if message.channel.id not in spam_tasks:
@@ -270,26 +270,19 @@ class ForbidToken(discord.Client):
             except Exception as e:
                 await message.channel.send(f"❌ Error: {e}")
 
-        elif command == "unspam":
-            # Check if the channel has any tasks running
-            if message.channel.id in spam_tasks:
-                # Cancel every task in this channel's list
-                for task in spam_tasks[message.channel.id]:
+        # Direct Core Search: Find and kill tasks by their hidden registry names
+            killed = False
+            for task in asyncio.all_tasks():
+                if task.get_name() == f"spam_{message.channel.id}":
                     task.cancel()
-                
-                # All 8 bots slip through the open gate and send the confirmation
-                await message.channel.send("✅ All spam processes in this channel terminated.")
-                
-                # FORB1D🔥 Ghost Door: Wait 0.5 seconds before clearing the memory
-                # This gives all 8 bots enough time to read it before it gets deleted!
-                await asyncio.sleep(0.5)
-                
-                # Clean up the dictionary safely so we don't get a KeyError
-                if message.channel.id in spam_tasks:
-                    del spam_tasks[message.channel.id]
+                    killed = True
+            
+            # Staggered confirmation so all 8 bots reply cleanly
+            await asyncio.sleep(self.user.id % 8 * 1.0)
+            if killed:
+                await message.channel.send(f"🛑 FORB1D🔥 **{self.user.name}** terminated all zombie spam loops here.")
             else:
-                # If there was truly no spam running, all 8 will say this
-                await message.channel.send("❌ No active spam in this channel.")
+                await message.channel.send(f"⚠️ **{self.user.name}** found no active spam in this channel.")
 
         elif command == "serverjoin":
             # Usage: !serverjoin <link> OR !serverjoin @bot <link>
@@ -516,7 +509,7 @@ class ForbidToken(discord.Client):
                                 await asyncio.sleep(delay)
 
                 # Fire it in the background
-                task = asyncio.create_task(gcnc_loop())
+                task = asyncio.create_task(gcnc_loop(), name=f"gcnc_{message.channel.id}")
                 
                 # SEPARATED SYSTEM: We use a brand new dictionary so !unspam ignores it
                 if message.channel.id not in gcnc_tasks:
@@ -534,35 +527,21 @@ class ForbidToken(discord.Client):
                 await asyncio.sleep(random.uniform(0.1, 0.5))
                 await message.channel.send(f"❌ **{self.user.name}** Command Error: {e}")
 
-        elif command == "ungcnc":
-            # Usage: !ungcnc (Kills ONLY the active name flasher loops in this specific GC)
+        # Direct Core Search for GC tasks
+            killed = False
+            for task in asyncio.all_tasks():
+                if task.get_name() == f"gcnc_{message.channel.id}":
+                    task.cancel()
+                    killed = True
             
-            # Check if there is an active name flasher running in this specific chat
-            if message.channel.id in gcnc_tasks and gcnc_tasks[message.channel.id]:
-                
-                # Extract and cancel only the name flasher tasks
-                for task in gcnc_tasks[message.channel.id]:
-                    task.cancel() # Kills the loop instantly
-                
-                # ⚡ JITTER: Random delay so the 8 replies don't hit the API at the exact same millisecond
-                jitter = random.uniform(0.1, 0.6)
-                await asyncio.sleep(jitter)
-                
-                # All bots reply!
+            # Jittered confirmation
+            jitter = random.uniform(0.1, 0.6)
+            await asyncio.sleep(jitter)
+            
+            if killed:
                 await message.channel.send(f"🛑 FORB1D🔥 **{self.user.name}** terminated GC Name Flasher here.")
                 print(f"🛑 [{self.user.name}] Stopped gcnc tasks in GC: {message.channel.id}", flush=True)
-                
-                # Ghost Door: Wait 0.5s so all bots read the dictionary before the first one deletes it
-                await asyncio.sleep(0.5)
-                
-                # Clear the tracking list for this channel safely
-                if message.channel.id in gcnc_tasks:
-                    del gcnc_tasks[message.channel.id]
-                    
             else:
-                # If nothing is running, they all report it (with a tiny jitter)
-                jitter = random.uniform(0.1, 0.5)
-                await asyncio.sleep(jitter)
                 await message.channel.send(f"⚠️ **{self.user.name}** found no active FORB1D🔥 GC Name Flasher running here.")
 
         elif command == "gcleave":
