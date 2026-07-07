@@ -4,7 +4,11 @@ import os
 import time
 import random 
 import re
+import logging
 from keep_alive import keep_alive
+
+# TURN ON DISCORD X-RAY
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s:%(name)s: %(message)s')
 
 # 2. Extract configuration constants
 PREFIX = "^"
@@ -736,23 +740,24 @@ class ForbidToken(discord.Client):
        
            
 # 4. Master Engine Initialization
+# 4. Master Engine Initialization
 async def main():
     raw_tokens = os.environ.get('BOT_TOKENS')
     if not raw_tokens:
-        print("❌ ERROR: No BOT_TOKENS found in Render Environment Variables!")
+        print("❌ ERROR: No BOT_TOKENS found in Render Environment Variables!", flush=True)
         return
 
     token_list = [t.strip() for t in raw_tokens.split(',') if t.strip()]
     clients = []
 
-    print(f"⚡ Initializing multi-token array with {len(token_list)} targets...")
+    print(f"⚡ Initializing multi-token array with {len(token_list)} targets...", flush=True)
 
     # Create a shielded login function so dead tokens don't crash the good ones
     async def safe_start(client, token):
         try:
             await client.start(token)
         except Exception as e:
-            print(f"💀 DEAD TOKEN SKIPPED [{token[:10]}...]: {e}")
+            print(f"💀 DEAD TOKEN SKIPPED [{token[:10]}...]: {e}", flush=True)
 
     # Build client instances for every token
     for token in token_list:
@@ -763,7 +768,7 @@ async def main():
         await asyncio.sleep(0.5)
 
     # Fire all connections concurrently
-    print("🚀 Firing connections concurrently...")
+    print("🚀 Firing connections concurrently...", flush=True)
     await asyncio.gather(*clients)
 
 if __name__ == "__main__":
