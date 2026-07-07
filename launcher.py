@@ -16,6 +16,9 @@ logging.getLogger('discord.http').setLevel(logging.ERROR)
 # 3. SMART LOG MATRIX TIMER (For your custom loops)
 global_last_log = 0
 
+# 🟢 THE SWARM REGISTRY: Tracks breathing tokens in real-time
+ACTIVE_SWARM = []
+
 # 2. Extract configuration constants
 PREFIX = "^"
 MAIN_OWNER = 1457960499798081549
@@ -36,13 +39,23 @@ class ForbidToken(discord.Client):
         import aiohttp
         print(f"🟢 [{self.user.name}] Linked to Gateway & Operational.", flush=True)
         
-        # Open the high-speed TCP socket pipe
+        # 🟢 HEALTH MONITOR: Bot registers itself as ALIVE
+        if self.user.id not in ACTIVE_SWARM:
+            ACTIVE_SWARM.append(self.user.id)
+            print(f"📊 [System] Swarm Capacity updated: {len(ACTIVE_SWARM)} Nodes Active.", flush=True)
+
         self.raw_session = aiohttp.ClientSession(headers={
             "Authorization": self.http.token,
             "Content-Type": "application/json"
         })
-        
         self.loop.create_task(self.ram_cleaner_loop())
+
+    # 🛑 ADD THIS RIGHT UNDER ON_READY
+    async def on_disconnect(self):
+        # 🛑 HEALTH MONITOR: Bot registers itself as DEAD and forces math recalculation
+        if self.user.id in ACTIVE_SWARM:
+            ACTIVE_SWARM.remove(self.user.id)
+            print(f"⚠️ [System] {self.user.name} dropped connection! Swarm auto-healed to {len(ACTIVE_SWARM)} Nodes.", flush=True)
                 
     
     async def on_message(self, message):
@@ -183,8 +196,16 @@ class ForbidToken(discord.Client):
 
                 async def spam_loop():
                     # ⚡ CHANGED: client.user.id -> self.user.id
-                    my_math_id = self.user.id % 8 
-                    perfect_stagger = (delay / 8.0) * my_math_id
+                    # 🟢 ENTERPRISE MATH: Auto-adjusts to the live swarm size!
+                    current_swarm_size = max(1, len(ACTIVE_SWARM))
+                    
+                    try:
+                        # Bot finds its exact place in the live line-up (0, 1, 2, 3...)
+                        my_math_id = ACTIVE_SWARM.index(self.user.id)
+                    except ValueError:
+                        my_math_id = 0
+                        
+                    perfect_stagger = (delay / float(current_swarm_size)) * my_math_id
                     
                     # ⚡ CHANGED: client.user.id -> self.user.id
                     emoji_index = self.user.id % len(emojis)
@@ -254,8 +275,16 @@ class ForbidToken(discord.Client):
 
                 async def custom_loop():
                     # ADVANCED MATH: Use the account's unique Discord ID to calculate a perfect stagger!
-                    my_math_id = self.user.id % 8 
-                    perfect_stagger = (delay / 8.0) * my_math_id
+                    # 🟢 ENTERPRISE MATH: Auto-adjusts to the live swarm size!
+                    current_swarm_size = max(1, len(ACTIVE_SWARM))
+                    
+                    try:
+                        # Bot finds its exact place in the live line-up (0, 1, 2, 3...)
+                        my_math_id = ACTIVE_SWARM.index(self.user.id)
+                    except ValueError:
+                        my_math_id = 0
+                        
+                    perfect_stagger = (delay / float(current_swarm_size)) * my_math_id
                     
                     # Start at a unique color based on the account ID 
                     color_index = self.user.id % len(hearts)
@@ -504,17 +533,26 @@ class ForbidToken(discord.Client):
                     "👑 {user_text} ON TOP 👑"
                 ]
                 
+                # 🟢 ENTERPRISE MATH: Auto-adjusts to the live swarm size!
                 async def gcnc_loop():
-                    # ADVANCED MATH: Use your exact delay to stagger the start
-                    my_math_id = self.user.id % 8 
+                    # 🟢 ENTERPRISE MATH: Auto-adjusts to the live swarm size!
+                    current_swarm_size = max(1, len(ACTIVE_SWARM))
+                    
+                    try:
+                        # Bot finds its exact place in the live line-up (0, 1, 2, 3...)
+                        my_math_id = ACTIVE_SWARM.index(self.user.id)
+                    except ValueError:
+                        my_math_id = 0
+                        
                     stagger = my_math_id * delay
                     await asyncio.sleep(stagger)
                     
-                    emoji_index = self.user.id % len(emojis)
-                    template_index = self.user.id % len(templates)
+                    # Use the dynamic ID for templates so they never overlap
+                    emoji_index = my_math_id % len(emojis)
+                    template_index = my_math_id % len(templates)
                     
-                    # To keep the exact 1-second pace, each bot waits 8x the delay between its own turns
-                    cycle_wait = delay * 4.0
+                    # 🟢 DYNAMIC CYCLE WAIT: Bot waits for the exact number of ALIVE bots to take their turn
+                    cycle_wait = delay * float(current_swarm_size)
                     
                     while True:
                         try:
