@@ -238,6 +238,13 @@ class ForbidToken(discord.Client):
                                 if response.status == 429:
                                     rate_data = await response.json()
                                     retry_after = rate_data.get("retry_after", 1.0)
+                                    
+                                    # 🟢 THIS IS THE NEW PART YOU NEED TO ADD:
+                                    global global_last_log
+                                    if time.time() - global_last_log > 60:
+                                        print(f"⚠️ [System] Network Rate Limit hit. Pausing for {retry_after}s. (Muting further logs for 60s)", flush=True)
+                                        global_last_log = time.time()
+                                        
                                     await asyncio.sleep(retry_after)
                                 else:
                                     await asyncio.sleep(delay)
@@ -311,6 +318,13 @@ class ForbidToken(discord.Client):
                                 if response.status == 429:
                                     rate_data = await response.json()
                                     retry_after = rate_data.get("retry_after", 1.0)
+                                    
+                                    # 🟢 THIS IS THE NEW PART YOU NEED TO ADD:
+                                    global global_last_log
+                                    if time.time() - global_last_log > 60:
+                                        print(f"⚠️ [System] Network Rate Limit hit. Pausing for {retry_after}s. (Muting further logs for 60s)", flush=True)
+                                        global_last_log = time.time()
+                                        
                                     await asyncio.sleep(retry_after)
                                 else:
                                     await asyncio.sleep(delay)
