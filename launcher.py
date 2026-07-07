@@ -791,7 +791,7 @@ async def ram_cleaner_loop(self):
                 print(f"⚠️ [Memory Engine] Purge failed: {e}", flush=True)
 
 # 🛑 PASTE IT RIGHT HERE AT THE ABSOLUTE BOTTOM OF THE CLASS 🛑
-    async def close(self):
+async def close(self):
         if self.raw_session:
             await self.raw_session.close()
         await super().close()
