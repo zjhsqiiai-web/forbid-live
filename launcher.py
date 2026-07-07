@@ -279,7 +279,12 @@ class ForbidToken(discord.Client):
             except Exception as e:
                 await message.channel.send(f"❌ Error: {e}")
 
-        # Direct Core Search: Find and kill tasks by their hidden registry names
+        # =========================================================
+        # 🛑 YOU WERE MISSING THIS HEADER RIGHT HERE 🛑
+        # =========================================================
+        elif command == "unspam":
+            
+            # Direct Core Search: Find and kill tasks by their hidden registry names
             killed = False
             for task in asyncio.all_tasks():
                 if task.get_name() == f"spam_{message.channel.id}":
