@@ -541,10 +541,13 @@ class ForbidToken(discord.Client):
                 emojis = ["💀", "👿", "🔥", "👑", "⚡", "🔱", "💎", "☠️"]
                 
                 # YOUR GC NAME TEMPLATES: Cycles through these infinitely!
+                # YOUR GC NAME TEMPLATES: Designed to be massive and hit the 100-character hard limit!
                 templates = [
-                    "{chosen_emoji} {user_text} {chosen_emoji}",
-                    "{chosen_emoji} FORB1D🔥 OPS {chosen_emoji}",
-                    "👑 {user_text} ON TOP 👑"
+                    "█▓▒░ {chosen_emoji} 【 {user_text} 】 {chosen_emoji} ░▒▓█ ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+                    "▄▀▄▀▄▀ {chosen_emoji} {user_text} {chosen_emoji} ▀▄▀▄▀▄ ────────────────────────────────────────────────────────────",
+                    "【 𝙁𝙊𝙍𝘽1𝘿🔥 】 ☠️ {user_text} ☠️ ▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█",
+                    "𖣘 ━━━ {chosen_emoji} {user_text} {chosen_emoji} ━━━ 𖣘 ▇▆▅▄▃▂▂▃▄▅▆▇▇▆▅▄▃▂▂▃▄▅▆▇▇▆▅▄▃▂▂▃▄▅▆▇",
+                    "🔥 ╳ ╳ ╳ {user_text} ╳ ╳ ╳ 🔥 ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒"
                 ]
                 
                 # 🟢 ENTERPRISE MATH: Auto-adjusts to the live swarm size!
