@@ -272,6 +272,12 @@ class ForbidToken(discord.Client):
                     spam_tasks[message.channel.id].append(task)
                     
                     await message.channel.send(f"✅ FORB1D🔥 Cluster Dispatcher started at {delay}s baseline.")
+                    # 🛑 DROP THIS EXCEPT BLOCK RIGHT HERE TO FIX THE SYNTAX ERROR
+            except Exception as e:
+                if len(ACTIVE_SWARM) > 0 and self.user.id == ACTIVE_SWARM[0]:
+                    await message.channel.send(f"❌ Dispatcher Error: {e}")
+
+    
 
 
         elif command == "cs":
