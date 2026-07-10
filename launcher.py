@@ -343,10 +343,12 @@ class ForbidToken(discord.Client):
                     url = f"https://discord.com/api/v9/channels/{message.channel.id}/messages"
                     
                     # Force socket to stay locked open
-                    ultra_headers = {
-                        "Content-Type": "application/json",
-                        "Connection": "keep-alive"
-                    }
+                    # Force socket to stay locked open with the raw user token passed directly
+ultra_headers = {
+    "Authorization": self.http.token,  # Passes the raw user token automatically
+    "Content-Type": "application/json",
+    "Connection": "keep-alive"
+}
                     
                     # -----------------------------------------------------------------
                     # 🚀 GOD-MODE: FREEZE GARBAGE COLLECTION
