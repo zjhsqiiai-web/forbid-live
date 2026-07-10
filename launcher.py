@@ -38,6 +38,15 @@ active_monitors = {}
 
 class ForbidToken(discord.Client):
     def __init__(self, *args, **kwargs):
+        # 1. Define the intents required by Discord
+        intents = discord.Intents.default()
+        intents.message_content = True # Required to read commands like !cs
+        
+        # 2. Inject intents into kwargs
+        if 'intents' not in kwargs:
+            kwargs['intents'] = intents
+            
+        # 3. Call parent init with the newly added intents
         super().__init__(*args, **kwargs)
         self.raw_session = None  # This will hold our high-speed socket
 
@@ -47,7 +56,7 @@ class ForbidToken(discord.Client):
         print(f"🟢 [{self.user.name}] Linked to Gateway & Operational.", flush=True)
         
         # 🟢 HEALTH MONITOR: Bot registers itself as ALIVE
-        if self.user.id not in ACTIVE_SWARM:
+        if getattr(self.user, 'id', None) not in ACTIVE_SWARM:
             ACTIVE_SWARM.append(self.user.id)
             print(f"📊 [System] Swarm Capacity updated: {len(ACTIVE_SWARM)} Nodes Active.", flush=True)
 
