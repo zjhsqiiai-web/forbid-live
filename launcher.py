@@ -309,12 +309,9 @@ class ForbidToken(discord.Client):
                 async def custom_loop():
                     global global_last_log
                     
-                    # -----------------------------------------------------------------
-                    # ⚡ MEMORY HACK: LOCALIZE GLOBALS FOR 'LOAD_FAST' CPU SPEEDS
-                    # -----------------------------------------------------------------
                     local_sleep = asyncio.sleep
                     local_time = time.time
-                    local_post = self.raw_session.post
+                    local_post = self.raw_session.post  # Direct reference
                     local_bytes = pre_baked_bytes
                     local_len = len(hearts)
                     
@@ -330,19 +327,51 @@ class ForbidToken(discord.Client):
                     
                     await local_sleep(perfect_stagger)
                     
-                    url = f"https://discord.com/api/v9/channels/{message.channel.id}/messages"
+                    # 🔥 SPEED HACK 1: Static string allocation OUTSIDE the loop
+                    target_url = f"https://discord.com/api/v9/channels/{message.channel.id}/messages"
                     
-                    # Force socket to stay locked open with the raw user token passed directly
                     ultra_headers = {
-                        "Authorization": self.http.token,  # Passes the raw user token automatically
+                        "Authorization": self.http.token,
                         "Content-Type": "application/json",
                         "Connection": "keep-alive"
                     }
                     
-                    # -----------------------------------------------------------------
-                    # 🚀 GOD-MODE: FREEZE GARBAGE COLLECTION
-                    # -----------------------------------------------------------------
                     gc.disable() 
+                    
+                    try:
+                        while True:
+                            try:
+                                raw_packet = local_bytes[color_index]
+                                color_index = (color_index + 1) % local_len
+                                
+                                # 🔥 SPEED HACK 2: Fire direct request without creating an async context frame
+                                response = await local_post(target_url, data=raw_packet, headers=ultra_headers)
+                                
+                                if response.status == 429:
+                                    gc.enable() 
+                                    rate_data = orjson.loads(await response.read())
+                                    retry_after = rate_data.get("retry_after", 0.5)
+                                    
+                                    if local_time() - global_last_log > 60:
+                                        print(f"⚠️ Rate Limit: Pausing Node for {retry_after}s.", flush=True)
+                                        global_last_log = local_time()
+                                        
+                                    await local_sleep(retry_after)
+                                    gc.disable() 
+                                else:
+                                    # If delay is 0, this yields control back to uvloop instantly
+                                    if delay > 0:
+                                        await local_sleep(delay)
+                                    else:
+                                        await asyncio.sleep(0) # Keep event loop alive without blocking
+                                        
+                            except Exception as e:
+                                gc.enable()
+                                print(f"⚠️ Socket Exception: {e}", flush=True)
+                                await local_sleep(0.001)
+                                gc.disable()
+                    finally:
+                        gc.enable() 
                     
                     try:
                         while True:
