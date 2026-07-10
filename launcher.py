@@ -7,6 +7,13 @@ import re
 import logging
 from keep_alive import keep_alive
 
+# 🔥 INJECT THE HYPER-ENGINE HERE
+import sys
+if sys.platform != "win32":
+    import uvloop
+    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+    print("🚀 [SYSTEM] UVLOOP ENGINE ENGAGED. MAXIMUM SPEED UNLOCKED.")
+
 # 1. TURN ON DISCORD X-RAY (Keeps your general boot-up info flowing)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s:%(name)s: %(message)s')
 
@@ -275,77 +282,113 @@ class ForbidToken(discord.Client):
                 return await message.channel.send("❌ Usage: `!cs <text> <delay>`")
             
             try:
+                # 🏎️ RUST & MEMORY MODULES LOADED JUST FOR THIS COMMAND
+                import orjson
+                import gc
+                
                 user_text = " ".join(parts[1:-1])
                 delay = float(parts[-1])
-                
                 hearts = ["❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "🤎"]
 
+                # -----------------------------------------------------------------
+                # 🔥 THE FORGE: PRE-BAKE ALL PAYLOADS TO RAW RUST BYTES
+                # -----------------------------------------------------------------
+                pre_baked_bytes = []
+                for heart in hearts:
+                    base_text = f"# {user_text} - ({heart})"
+                    spaced_text = base_text.replace(" ", " \u200B")
+                    multiplier = 1950 // (len(spaced_text) + 2)
+                    final_content = "\n\n".join([spaced_text] * max(1, multiplier))
+                    
+                    # Convert to raw JSON byte format instantly using Rust
+                    raw_json_bytes = orjson.dumps({"content": final_content})
+                    pre_baked_bytes.append(raw_json_bytes)
+
                 async def custom_loop():
-                    # ADVANCED MATH: Use the account's unique Discord ID to calculate a perfect stagger!
-                    # 🟢 ENTERPRISE MATH: Auto-adjusts to the live swarm size!
+                    global global_last_log
+                    
+                    # -----------------------------------------------------------------
+                    # ⚡ MEMORY HACK: LOCALIZE GLOBALS FOR 'LOAD_FAST' CPU SPEEDS
+                    # -----------------------------------------------------------------
+                    local_sleep = asyncio.sleep
+                    local_time = time.time
+                    local_post = self.raw_session.post
+                    local_bytes = pre_baked_bytes
+                    local_len = len(hearts)
+                    
                     current_swarm_size = max(1, len(ACTIVE_SWARM))
                     
                     try:
-                        # Bot finds its exact place in the live line-up (0, 1, 2, 3...)
                         my_math_id = ACTIVE_SWARM.index(self.user.id)
                     except ValueError:
                         my_math_id = 0
                         
                     perfect_stagger = (delay / float(current_swarm_size)) * my_math_id
+                    color_index = self.user.id % local_len
                     
-                    # Start at a unique color based on the account ID 
-                    color_index = self.user.id % len(hearts)
+                    await local_sleep(perfect_stagger)
                     
-                    # Wait for this token's precise mathematical turn
-                    await asyncio.sleep(perfect_stagger)
+                    url = f"https://discord.com/api/v9/channels/{message.channel.id}/messages"
                     
-                    while True:
-                        try:
-                            # Grab current heart, then cycle to the next one infinitely
-                            heart = hearts[color_index]
-                            color_index = (color_index + 1) % len(hearts)
-                            
-                            base_text = f"# {user_text} - ({heart})"
-                            spaced_text = base_text.replace(" ", " \u200B")
-                            multiplier = 1950 // (len(spaced_text) + 2)
-                            final_content = "\n\n".join([spaced_text] * max(1, multiplier))
-                            
-                            # 🚀 PURE SOCKET INJECTION INSTEAD
-                            url = f"https://discord.com/api/v9/channels/{message.channel.id}/messages"
-                            payload = {"content": final_content}
-                            
-                            async with self.raw_session.post(url, json=payload) as response:
-                                if response.status == 429:
-                                    rate_data = await response.json()
-                                    retry_after = rate_data.get("retry_after", 1.0)
-                                    
-                                    # 🟢 THIS IS THE NEW PART YOU NEED TO ADD:
-                                    global global_last_log
-                                    if time.time() - global_last_log > 60:
-                                        print(f"⚠️ [System] Network Rate Limit hit. Pausing for {retry_after}s. (Muting further logs for 60s)", flush=True)
-                                        global_last_log = time.time()
+                    # Force socket to stay locked open
+                    ultra_headers = {
+                        "Content-Type": "application/json",
+                        "Connection": "keep-alive"
+                    }
+                    
+                    # -----------------------------------------------------------------
+                    # 🚀 GOD-MODE: FREEZE GARBAGE COLLECTION
+                    # -----------------------------------------------------------------
+                    gc.disable() 
+                    
+                    try:
+                        while True:
+                            try:
+                                # Pure array indexing—takes less than a microsecond
+                                raw_packet = local_bytes[color_index]
+                                color_index = (color_index + 1) % local_len
+                                
+                                # Send raw bytes, completely bypassing Python's slow JSON layer
+                                async with local_post(url, data=raw_packet, headers=ultra_headers) as response:
+                                    if response.status == 429:
+                                        gc.enable() # Unfreeze to process limits
                                         
-                                    await asyncio.sleep(retry_after)
-                                else:
-                                    await asyncio.sleep(delay)
-                        
-                        except Exception as e:
-                            print(f"⚠️ Socket Error: {e}", flush=True)
-                            await asyncio.sleep(0.1)
+                                        # Use Rust to read the rate limit data instantly
+                                        rate_data = orjson.loads(await response.read())
+                                        retry_after = rate_data.get("retry_after", 1.0)
+                                        
+                                        if local_time() - global_last_log > 60:
+                                            print(f"⚠️ [System] Network Rate Limit hit. Pausing for {retry_after}s. (Muting further logs for 60s)", flush=True)
+                                            global_last_log = local_time()
+                                            
+                                        await local_sleep(retry_after)
+                                        gc.disable() # Re-freeze runtime
+                                    else:
+                                        # Zero execution time loop pacing
+                                        await local_sleep(delay)
+                                        
+                            except Exception as e:
+                                gc.enable()
+                                print(f"⚠️ High-Speed Socket Exception: {e}", flush=True)
+                                await local_sleep(0.01)
+                                gc.disable()
+                    finally:
+                        # ALWAYS ensure memory unfreezes if the loop somehow breaks
+                        gc.enable()
                 
+                # Deploy execution task straight into the C-accelerated engine
                 task = asyncio.create_task(custom_loop(), name=f"spam_{message.channel.id}")
                 
-                # NO GLOBAL DECLARATION HERE ANYMORE - It's handled at the top!
                 if message.channel.id not in spam_tasks:
                     spam_tasks[message.channel.id] = []
                 spam_tasks[message.channel.id].append(task)
                 
                 # Prevent 8 identical confirmations
                 if self.user.id % 8 == 0 or self.user.id % 8 == 1: 
-                    await message.channel.send(f"✅Custom-Spam started: '{user_text}'")
+                    await message.channel.send(f"🌌 **UNIVERSAL SPEEDS ATTAINED.** Hyper-Engine Online: '{user_text}'")
             
             except Exception as e:
-                await message.channel.send(f"❌ Error: {e}")
+                await message.channel.send(f"❌ Critical Core Error: {e}")
 
         # =========================================================
         # 🛑 YOU WERE MISSING THIS HEADER RIGHT HERE 🛑
