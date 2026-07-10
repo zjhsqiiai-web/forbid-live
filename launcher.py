@@ -38,33 +38,23 @@ active_monitors = {}
 
 class ForbidToken(discord.Client):
     def __init__(self, *args, **kwargs):
-        # 1. Create a blank intent object for user account compatibility
-        intents = discord.Intents.none()
-        intents.messages = True
-        intents.guilds = True
-        
-        # Adjusting variables to accept the message text layer
-        try:
-            intents.message_content = True
-        except AttributeError:
-            pass # Old self-bot forks don't have this attribute
-            
-        kwargs['intents'] = intents
+        # 1. No intents needed for discord.py-self, just initialize directly
         super().__init__(*args, **kwargs)
-        self.raw_session = None 
+        self.raw_session = None  # This will hold our high-speed socket
 
+    # 🛑 ADD THIS RIGHT AT THE TOP OF YOUR CLASS
     async def on_ready(self):
         import aiohttp
         print(f"🟢 [{self.user.name}] Self-Bot Account Operational.", flush=True)
         
+        # 🟢 HEALTH MONITOR: Bot registers itself as ALIVE
         if getattr(self.user, 'id', None) not in ACTIVE_SWARM:
             ACTIVE_SWARM.append(self.user.id)
             print(f"📊 [System] Swarm Capacity updated: {len(ACTIVE_SWARM)} Nodes Active.", flush=True)
 
-        # ⚠️ CRITICAL SELF-BOT HEADERS CHANGE: 
-        # User accounts do NOT use the "Bot " prefix. They send the raw token string.
+        # User tokens pass the raw token string directly without a prefix
         self.raw_session = aiohttp.ClientSession(headers={
-            "Authorization": self.http.token, 
+            "Authorization": self.http.token,
             "Content-Type": "application/json"
         })
         self.loop.create_task(self.ram_cleaner_loop())
