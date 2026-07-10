@@ -38,30 +38,33 @@ active_monitors = {}
 
 class ForbidToken(discord.Client):
     def __init__(self, *args, **kwargs):
-        # 1. Define the intents required by Discord
-        intents = discord.Intents.default()
-        intents.message_content = True # Required to read commands like !cs
+        # 1. Create a blank intent object for user account compatibility
+        intents = discord.Intents.none()
+        intents.messages = True
+        intents.guilds = True
         
-        # 2. Inject intents into kwargs
-        if 'intents' not in kwargs:
-            kwargs['intents'] = intents
+        # Adjusting variables to accept the message text layer
+        try:
+            intents.message_content = True
+        except AttributeError:
+            pass # Old self-bot forks don't have this attribute
             
-        # 3. Call parent init with the newly added intents
+        kwargs['intents'] = intents
         super().__init__(*args, **kwargs)
-        self.raw_session = None  # This will hold our high-speed socket
+        self.raw_session = None 
 
-    # 🛑 ADD THIS RIGHT AT THE TOP OF YOUR CLASS
     async def on_ready(self):
         import aiohttp
-        print(f"🟢 [{self.user.name}] Linked to Gateway & Operational.", flush=True)
+        print(f"🟢 [{self.user.name}] Self-Bot Account Operational.", flush=True)
         
-        # 🟢 HEALTH MONITOR: Bot registers itself as ALIVE
         if getattr(self.user, 'id', None) not in ACTIVE_SWARM:
             ACTIVE_SWARM.append(self.user.id)
             print(f"📊 [System] Swarm Capacity updated: {len(ACTIVE_SWARM)} Nodes Active.", flush=True)
 
+        # ⚠️ CRITICAL SELF-BOT HEADERS CHANGE: 
+        # User accounts do NOT use the "Bot " prefix. They send the raw token string.
         self.raw_session = aiohttp.ClientSession(headers={
-            "Authorization": self.http.token,
+            "Authorization": self.http.token, 
             "Content-Type": "application/json"
         })
         self.loop.create_task(self.ram_cleaner_loop())
