@@ -1,2 +1,5 @@
 Flask==3.0.0
-discord.py-self==2.1.0
+discord.py
+aiohttp
+uvloop
+orjson
