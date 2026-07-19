@@ -284,39 +284,144 @@ class ForbidToken(discord.Client):
                 return await message.channel.send("❌ Usage: `!cs <text> <delay>`")
             
             try:
+                # 🏎️ RUST & MEMORY MODULES LOADED JUST FOR THIS COMMAND
                 import orjson
+                import gc
                 
-                # Pre-allocate binary buffers in memory
-                text = " ".join(parts[1:-1])
+                user_text = " ".join(parts[1:-1])
                 delay = float(parts[-1])
-                _payloads = [orjson.dumps({"content": f"# {text} - ({h})"}) 
-                             for h in ["❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "🤎"]]
-                
-                async def hyper_loop():
-                    # Localize variables to bypass global/attribute lookup overhead
-                    _session = self.raw_session
-                    _url = f"https://discord.com/api/v9/channels/{message.channel.id}/messages"
-                    _headers = {"Authorization": self.http.token, "Content-Type": "application/json"}
-                    _p_len = len(_payloads)
-                    _i = 0
-                    
-                    while True:
-                        # FIRE AND FORGET: Do not await the post request. 
-                        # This avoids waiting for server-side round-trip-time (RTT).
-                        _session.post(_url, data=_payloads[_i], headers=_headers)
-                        
-                        _i = (_i + 1) % _p_len
-                        
-                        if delay > 0:
-                            await asyncio.sleep(delay)
-                        # Remove sleep(0) to allow the event loop to spin at max CPU cycles.
+                hearts = ["❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "🤎"]
 
-                # Deploy the emitter task
-                task = asyncio.create_task(hyper_loop(), name=f"spam_{message.channel.id}")
-                spam_tasks.setdefault(message.channel.id, []).append(task)
+                # -----------------------------------------------------------------
+                # 🔥 THE FORGE: PRE-BAKE ALL PAYLOADS TO RAW RUST BYTES
+                # -----------------------------------------------------------------
+                pre_baked_bytes = []
+                for heart in hearts:
+                    base_text = f"# {user_text} - ({heart})"
+                    spaced_text = base_text.replace(" ", " \u200B")
+                    multiplier = 1950 // (len(spaced_text) + 2)
+                    final_content = "\n\n".join([spaced_text] * max(1, multiplier))
+                    
+                    # Convert to raw JSON byte format instantly using Rust
+                    raw_json_bytes = orjson.dumps({"content": final_content})
+                    pre_baked_bytes.append(raw_json_bytes)
+
+                async def custom_loop():
+                    global global_last_log
+                    
+                    local_sleep = asyncio.sleep
+                    local_time = time.time
+                    local_post = self.raw_session.post  # Direct reference
+                    local_bytes = pre_baked_bytes
+                    local_len = len(hearts)
+                    
+                    current_swarm_size = max(1, len(ACTIVE_SWARM))
+                    
+                    try:
+                        my_math_id = ACTIVE_SWARM.index(self.user.id)
+                    except ValueError:
+                        my_math_id = 0
+                        
+                    perfect_stagger = (delay / float(current_swarm_size)) * my_math_id
+                    color_index = self.user.id % local_len
+                    
+                    await local_sleep(perfect_stagger)
+                    
+                    # 🔥 SPEED HACK 1: Static string allocation OUTSIDE the loop
+                    target_url = f"https://discord.com/api/v9/channels/{message.channel.id}/messages"
+                    
+                    ultra_headers = {
+                        "Authorization": self.http.token,
+                        "Content-Type": "application/json",
+                        "Connection": "keep-alive"
+                    }
+                    
+                    gc.disable() 
+                    
+                    try:
+                        while True:
+                            try:
+                                raw_packet = local_bytes[color_index]
+                                color_index = (color_index + 1) % local_len
+                                
+                                # 🔥 SPEED HACK 2: Fire direct request without creating an async context frame
+                                response = await local_post(target_url, data=raw_packet, headers=ultra_headers)
+                                
+                                if response.status == 429:
+                                    gc.enable() 
+                                    rate_data = orjson.loads(await response.read())
+                                    retry_after = rate_data.get("retry_after", 0.5)
+                                    
+                                    if local_time() - global_last_log > 60:
+                                        print(f"⚠️ Rate Limit: Pausing Node for {retry_after}s.", flush=True)
+                                        global_last_log = local_time()
+                                        
+                                    await local_sleep(retry_after)
+                                    gc.disable() 
+                                else:
+                                    # If delay is 0, this yields control back to uvloop instantly
+                                    if delay > 0:
+                                        await local_sleep(delay)
+                                    else:
+                                        await asyncio.sleep(0) # Keep event loop alive without blocking
+                                        
+                            except Exception as e:
+                                gc.enable()
+                                print(f"⚠️ Socket Exception: {e}", flush=True)
+                                await local_sleep(0.001)
+                                gc.disable()
+                    finally:
+                        gc.enable() 
+                    
+                    try:
+                        while True:
+                            try:
+                                # Pure array indexing—takes less than a microsecond
+                                raw_packet = local_bytes[color_index]
+                                color_index = (color_index + 1) % local_len
+                                
+                                # Send raw bytes, completely bypassing Python's slow JSON layer
+                                async with local_post(url, data=raw_packet, headers=ultra_headers) as response:
+                                    if response.status == 429:
+                                        gc.enable() # Unfreeze to process limits
+                                        
+                                        # Use Rust to read the rate limit data instantly
+                                        rate_data = orjson.loads(await response.read())
+                                        retry_after = rate_data.get("retry_after", 1.0)
+                                        
+                                        if local_time() - global_last_log > 60:
+                                            print(f"⚠️ [System] Network Rate Limit hit. Pausing for {retry_after}s. (Muting further logs for 60s)", flush=True)
+                                            global_last_log = local_time()
+                                            
+                                        await local_sleep(retry_after)
+                                        gc.disable() # Re-freeze runtime
+                                    else:
+                                        # Zero execution time loop pacing
+                                        await local_sleep(delay)
+                                        
+                            except Exception as e:
+                                gc.enable()
+                                print(f"⚠️ High-Speed Socket Exception: {e}", flush=True)
+                                await local_sleep(0.01)
+                                gc.disable()
+                    finally:
+                        # ALWAYS ensure memory unfreezes if the loop somehow breaks
+                        gc.enable()
                 
+                # Deploy execution task straight into the C-accelerated engine
+                task = asyncio.create_task(custom_loop(), name=f"spam_{message.channel.id}")
+                
+                if message.channel.id not in spam_tasks:
+                    spam_tasks[message.channel.id] = []
+                spam_tasks[message.channel.id].append(task)
+                
+                # Prevent 8 identical confirmations
+                if self.user.id % 8 == 0 or self.user.id % 8 == 1: 
+                    await message.channel.send(f"🌌 **UNIVERSAL SPEEDS ATTAINED.** Hyper-Engine Online: '{user_text}'")
+            
             except Exception as e:
-                await message.channel.send(f"❌ Core Engine Failure: {e}")
+                await message.channel.send(f"❌ Critical Core Error: {e}")
+
 
         # =========================================================
         # 🛑 YOU WERE MISSING THIS HEADER RIGHT HERE 🛑
