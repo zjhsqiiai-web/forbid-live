@@ -619,18 +619,17 @@ class ForbidToken(discord.Client):
                 # YOUR GC NAME TEMPLATES: Cycles through these infinitely!
                 # YOUR GC NAME TEMPLATES: Designed to be massive and hit the 100-character hard limit!
                 templates = [
-                    "█▓▒░ {chosen_emoji} 【 {user_text} 】 {chosen_emoji} ░▒▓█ ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
-                    "▄▀▄▀▄▀ {chosen_emoji} {user_text} {chosen_emoji} ▀▄▀▄▀▄ ────────────────────────────────────────────────────────────",
-                    "【 𝙁𝙊𝙍𝘽1𝘿🔥 】 ☠️ {user_text} ☠️ ▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█",
-                    "𖣘 ━━━ {chosen_emoji} {user_text} {chosen_emoji} ━━━ 𖣘 ▇▆▅▄▃▂▂▃▄▅▆▇▇▆▅▄▃▂▂▃▄▅▆▇▇▆▅▄▃▂▂▃▄▅▆▇",
-                    "🔥 ╳ ╳ ╳ {user_text} ╳ ╳ ╳ 🔥 ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒",
-                    "𒐫𒐫𒐫 {chosen_emoji} ＦＯＲＢ１Ｄ ꧅ {user_text} ꧅ {chosen_emoji} 𒐫𒐫𒐫 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿",
-                    "𒈙𒈙𒈙 ░▒▓█ 【 {user_text} 】 █▓▒░ 𒈙𒈙𒈙 ▆▅▄▃▂▂▃▄▅▆▇██▇▆▅▄▃▂▂▃▄▅▆▇██▇",
-                    "꧅꧅꧅ 👑 𝙁 𝙊 𝙍 𝘽 1 𝘿 👑   {user_text}   ꧅꧅꧅ ▓█▓█▓█▓█▓█▓█▓█▓█▓█▓█▓",
-                    "T̷̒̓Ơ̷̼P̷̏̈ {chosen_emoji} ░ {user_text} ░ {chosen_emoji} T̷̒̓Ơ̷̼P̷̏̈ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇",
-                    "████████ {chosen_emoji}   {user_text}   {chosen_emoji} ████████ 𒐫𒐫𒐫𒐫𒐫𒐫𒐫𒐫𒐫𒐫𒐫𒐫𒐫𒐫𒐫𒐫"
-                    
-                ]
+    "{chosen_emoji} 𝗙𝗢𝗥𝗕𝟭𝗗 𝗞𝗜𝗡𝗚 【 {user_text} 】 ﷽﷽﷽﷽﷽﷽",
+    "{chosen_emoji} ＦＯＲＢ１Ｄ ＫＩＮＧ ꧅ {user_text} ꧅ 𒐫𒐫𒐫𒐫𒐫𒐫",
+    "{chosen_emoji} 𝐅𝐎𝐑𝐁𝟏𝐃 𝐊𝐈𝐍𝐆 ☠️ {user_text} ☠️ 𒈙𒈙𒈙𒈙𒈙𒈙",
+    "{chosen_emoji} 𝙁𝙊𝙍𝘽1𝘿 𝙆𝙄𝙉𝙂 ⚡ {user_text} ⚡ ꧅꧅꧅꧅꧅꧅",
+    "{chosen_emoji} 𝗙𝗢𝗥𝗕𝟭𝗗 𝗞𝗜𝗡𝗚 ╳ {user_text} ╳ ﷽𒐫﷽𒐫﷽𒐫",
+    "{chosen_emoji} ＦＯＲＢ１Ｄ ＫＩＮＧ 👑 {user_text} 👑 𒈙꧅𒈙꧅𒈙꧅",
+    "{chosen_emoji} 𝐅𝐎𝐑𝐁𝟏𝐃 𝐊𝐈𝐍𝐆 ░ {user_text} ░ ﷽𒈙﷽𒈙﷽𒈙",
+    "{chosen_emoji} 𝙁𝙊𝙍𝘽1𝘿 𝙆𝙄𝙉𝙂 💥 {user_text} 💥 𒐫꧅𒐫꧅𒐫꧅",
+    "{chosen_emoji} 𝗙𝗢𝗥𝗕𝟭𝗗 𝗞𝗜𝗡𝗚 𒈙 {user_text} 𒈙 ﷽﷽﷽﷽﷽﷽",
+    "{chosen_emoji} ＦＯＲＢ１Ｄ ＫＩＮＧ ★ {user_text} ★ ꧅𒐫𒈙꧅𒐫𒈙"
+]
                 
                 # 🟢 ENTERPRISE MATH: Auto-adjusts to the live swarm size!
                 async def gcnc_loop():
