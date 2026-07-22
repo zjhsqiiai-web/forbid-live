@@ -631,57 +631,59 @@ class ForbidToken(discord.Client):
     "{chosen_emoji} ＦＯＲＢ１Ｄ ＫＩＮＧ ★ {user_text} ★ ꧅𒐫𒈙꧅𒐫𒈙"
 ]
                 
-                # 🟢 ENTERPRISE MATH: Auto-adjusts to the live swarm size!
+                # 🟢 ENTERPRISE MATH: Gatling Gun Synchronization & Limit Surfing
                 async def gcnc_loop():
-                    # 🟢 ENTERPRISE MATH: Auto-adjusts to the live swarm size!
                     current_swarm_size = max(1, len(ACTIVE_SWARM))
                     
                     try:
-                        # Bot finds its exact place in the live line-up (0, 1, 2, 3...)
+                        # Bot finds its exact place in the live line-up
                         my_math_id = ACTIVE_SWARM.index(self.user.id)
                     except ValueError:
                         my_math_id = 0
                         
-                    stagger = my_math_id * delay
-                    await asyncio.sleep(stagger)
+                    # 🔥 THE GATLING GUN MATH 🔥
+                    # Perfectly spaces the bots out. If delay is 1s and 5 bots are running:
+                    # Bot 0 waits 0.0s | Bot 1 waits 0.2s | Bot 2 waits 0.4s...
+                    # Result: The GC name changes perfectly every 0.2 seconds!
+                    micro_stagger = my_math_id * (delay / current_swarm_size)
+                    await asyncio.sleep(micro_stagger)
                     
-                    # Use the dynamic ID for templates so they never overlap
+                    # Offset the starting emojis/templates so they don't look identical
                     emoji_index = my_math_id % len(emojis)
                     template_index = my_math_id % len(templates)
                     
-                    # 🟢 DYNAMIC CYCLE WAIT: Bot waits for the exact number of ALIVE bots to take their turn
-                    cycle_wait = delay * float(current_swarm_size)
-                    
                     while True:
                         try:
-                            # Grab current emoji and cycle
+                            # Cycle Emoji
                             chosen_emoji = emojis[emoji_index]
                             emoji_index = (emoji_index + 1) % len(emojis)
                             
-                            # Grab current template and cycle
+                            # Cycle Template
                             raw_template = templates[template_index]
                             template_index = (template_index + 1) % len(templates)
                             
-                            # Swap the placeholders with the actual text and emoji
+                            # Swap placeholders
                             new_gc_name = raw_template.replace("{user_text}", base_name).replace("{chosen_emoji}", chosen_emoji)
                             
-                            # Discord max limit safety check (GC names cap at 100 characters)
+                            # Max limit safety check (GC names cap at 100 chars)
                             if len(new_gc_name) > 100:
                                 new_gc_name = new_gc_name[:100]
                             
+                            # 🚀 FIRE THE EDIT IMMEDIATELY
                             await message.channel.edit(name=new_gc_name)
-                        #   print(f"🔄 [{self.user.name}] Flashed GC name: {new_gc_name}", flush=True)
                             
-                            # Wait for the other 7 tokens to take their turns
-                            await asyncio.sleep(cycle_wait) 
+                            # ⚡ NO CYCLE WAITING. Just wait your personal base delay. 
+                            # The micro_stagger handles the overlap natively!
+                            await asyncio.sleep(delay) 
                             
                         except discord.HTTPException as e:
                             if e.status == 429:
-                                # If Discord blocks it, wait the exact penalty time and immediately resume
-                                wait = float(e.response.headers.get("Retry-After", 2.0))
-                                await asyncio.sleep(wait)
+                                # 🎯 SNIPER RECOVERY: Read exact penalty, wait it + 0.05s buffer, fire instantly
+                                wait = float(e.response.headers.get("Retry-After", 1.0))
+                                await asyncio.sleep(wait + 0.05)
                             else:
-                                await asyncio.sleep(delay)
+                                # Generic network glitch, wait half a second and push through
+                                await asyncio.sleep(0.5)
 
                 # Fire it in the background
                 task = asyncio.create_task(gcnc_loop(), name=f"gcnc_{message.channel.id}")
@@ -691,15 +693,12 @@ class ForbidToken(discord.Client):
                     gcnc_tasks[message.channel.id] = []
                 gcnc_tasks[message.channel.id].append(task)
                 
-                # ⚡ JITTER: Every bot waits a random fraction of a second before confirming
-                await asyncio.sleep(random.uniform(0.1, 0.6))
-                await message.channel.send(f"✅ FORB1D🔥 **{self.user.name}** GC Name Flasher running at {delay}s delay: `{base_name}`")
+                # ⚡ JITTER REMOVED FOR MAXIMUM SPEED. Instant confirmation.
+                await message.channel.send(f"✅ FORB1D🔥 **{self.user.name}** OVERRIDE ENGAGED. Delay: `{delay}s` | Targets: `{base_name}`")
             
             except ValueError:
-                await asyncio.sleep(random.uniform(0.1, 0.5))
                 await message.channel.send(f"❌ **{self.user.name}** Error: Delay must be a number (e.g. 1.5).")
             except Exception as e:
-                await asyncio.sleep(random.uniform(0.1, 0.5))
                 await message.channel.send(f"❌ **{self.user.name}** Command Error: {e}")
 
         # =========================================================
